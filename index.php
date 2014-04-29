@@ -7,7 +7,7 @@ if($config['error'] == 1){
 	$alert = '
 		<div class="alert alert-dismissable alert-success">
 		  <button type="button" class="close" data-dismiss="alert">×</button>
-		  <strong>First Time Here?</strong> You have successfully installed OSBal now you just need to configure it.<br /> 
+		  <strong>First Time Here?</strong> You have successfully installed OSBal, now you just need to configure it.<br /> 
 		  <a href="install.php">Install Now.</a>
 		</div>
 	';

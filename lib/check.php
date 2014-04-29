@@ -5,7 +5,7 @@ function checkStatus(){
 	$errors = array();
 	//check for packages
 
-	$required = "heartbeat,haproxy,stunnel,apache2,php5";
+	$required = "heartbeat,haproxy,stunnel4,apache2,php5";
 	$required = explode(',', $required);
 
 	foreach($required as $package) {
@@ -29,9 +29,9 @@ function checkRequirement($package) {
 
 function checkConfig(){
 	if(file_exists('/usr/local/osbal/config')){
-		return array('message' => 'Config file exists.', 'error' => false);
+		return array('message' => 'Config file exists.', 'error' => true);
 	} else {
-		return array('message' => 'Config file missing', 'error' => true);
+		return array('message' => 'Config file missing', 'error' => false);
 	}
 }
 
