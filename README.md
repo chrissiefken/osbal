@@ -20,4 +20,4 @@ If you require high availability throughout your stack you should set 2 of these
 Give each server a unique private IP - these will be our management IP's.
 
 ###Step 3: 
-Install the required software - Run `sudo apt-get install heartbeat haproxy apache2 php5`
+Install the required software - Run `sudo apt-get install heartbeat haproxy stunnel apache2 php5`
