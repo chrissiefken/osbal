@@ -9,7 +9,6 @@ Build a feature rich highly available layer 7 _appliance_ which does load balanc
 While we could have used different technology to implement the UI components which are lighter to allow for a lower system footprint, its our belief that ease of installation and management are core to our mission.
 
 ##Getting started
-=====
 
 ###Step 1:
 Set up at least one plain Ubuntu LTS server - our prefered system is currently 14.04
