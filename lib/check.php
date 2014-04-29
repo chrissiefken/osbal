@@ -12,12 +12,8 @@ function checkStatus(){
 		$status[] = checkRequirement($package);
 	}
 
-	//check for pre-existing config
-	if(file_exists('/usr/local/osbal/config')){
-		$status[] = 'Config file exists.';
-	} else {
-		$status[] = 'Config file missing';
-	}
+	//check config
+	$status[] = checkConfig();
 
 	return $status;
 }
@@ -25,11 +21,18 @@ function checkStatus(){
 function checkRequirement($package) {
 	$result = shell_exec('dpkg -s ' . $package);
 	if(preg_match('/Status: install ok installed/', $result)){
-		return $package . ' installed';
+		return array('message' => $package . ' installed', 'error' => false);
 	} else {
-		return $package . ' NOT installed';
+		return array('message' => $package . ' NOT installed', 'error' => true);
 	}
 }
 
+function checkConfig(){
+	if(file_exists('/usr/local/osbal/config')){
+		return array('message' => 'Config file exists.', 'error' => false);
+	} else {
+		return array('message' => 'Config file missing', 'error' => true);
+	}
+}
 
 ?>

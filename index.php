@@ -1,4 +1,22 @@
+<?php 
+include $_SERVER['DOCUMENT_ROOT'] . '/lib/check.php';
+$config = checkConfig();
 
+if($config['error'] == 1){
+	
+	$alert = '
+		<div class="alert alert-dismissable alert-success">
+		  <button type="button" class="close" data-dismiss="alert">×</button>
+		  <strong>First Time Here?</strong> You have successfully installed OSBal now you just need to configure it.<br /> 
+		  <a href="install.php">Install Now.</a>
+		</div>
+	';
+} else {
+	$alert = '';
+}
+
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,6 +33,7 @@
 	<div class="container">
     <div class="row">
 		<div class="col-md-4 col-md-offset-4">
+			<?php echo $alert; ?>
     		<div class="panel panel-default">
 			  	<div class="panel-heading">
 			    	<h3 class="panel-title">Please sign in</h3>

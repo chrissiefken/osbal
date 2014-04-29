@@ -6,10 +6,16 @@ $results = checkStatus();
 echo '<ul class="list-group">';
 
 foreach($results as $result) {
-	echo '<li class="list-group-item">' . $result . '</li>';
+	if($result['error']==1){
+		$error = '<span class="label label-danger pull-right">Error</span>';
+	} else {
+		$error = '';
+	}
+	echo '<li class="list-group-item">' . $result['message'] . $error . '</li>';
 }
 
  echo '</ul>';
+
 
 
 include $_SERVER['DOCUMENT_ROOT'] . '/lib/footer.php';
