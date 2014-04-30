@@ -8,6 +8,8 @@ Build a feature rich highly available layer 7 _appliance_ which does load balanc
 
 While we could have used different technology to implement the UI components which are lighter to allow for a lower system footprint, its our belief that ease of installation and management are core to our mission.
 
+Ideally this set up should work for very limited hardware, with a 2gb footprint it should even run on a Raspberry Pi.
+
 ##Getting started
 
 ###Step 1:
@@ -19,4 +21,10 @@ If you require high availability throughout your stack you should set 2 of these
 Give each server a unique private IP - these will be our management IP's.
 
 ###Step 3: 
-Install the required software - Run `sudo apt-get install heartbeat haproxy stunnel apache2 php5`
+Install the required software - Run `sudo apt-get install heartbeat haproxy stunnel4 apache2 php5`
+
+###Step 4:
+Download the UI from git hub.
+
+###Step 5:
+Point your browser to the IP address of your new Loadbalancer and follow the directions!
