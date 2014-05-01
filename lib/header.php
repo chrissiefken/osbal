@@ -33,6 +33,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/lib/global-settings.php';
 		      <li><a href="/lb-settings/index.php">Load Balancer</a></li>
 		      <li><a href="#">Certificates</a></li>
 		      <li><a href="#">System Status</a></li>
+		      <li><a href="/create.php">User</a></li>
 		    </ul>
 		    <ul class="nav navbar-nav navbar-right">
 		      <li><a href="https://github.com/siefkencp/osbal">About</a></li>
