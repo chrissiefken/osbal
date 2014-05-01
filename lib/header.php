@@ -12,6 +12,9 @@
     body{padding-top:20px;}    </style>
     <script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
     <script src="/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="http://cdn.oesmith.co.uk/morris-0.4.3.min.css">
+	<script src="//cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
+	<script src="http://cdn.oesmith.co.uk/morris-0.4.3.min.js"></script>
 </head>
 <body>
 	<div class="container">
@@ -26,8 +29,8 @@
 		  </div>
 		  <div class="navbar-collapse collapse navbar-responsive-collapse">
 		    <ul class="nav navbar-nav">
-		      <li><a href="#">Reporting</a></li>
-		      <li><a href="#">Load Balancer</a></li>
+		      <li><a href="/reporting/index.php">Reporting</a></li>
+		      <li><a href="/lb-settings/index.php">Load Balancer</a></li>
 		      <li><a href="#">Certificates</a></li>
 		      <li><a href="#">System Status</a></li>
 		    </ul>
