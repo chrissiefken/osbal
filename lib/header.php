@@ -1,5 +1,5 @@
 <?php
-
+include $_SERVER['DOCUMENT_ROOT'] . '/lib/global-settings.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
