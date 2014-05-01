@@ -1,5 +1,6 @@
 <?php 
 include $_SERVER['DOCUMENT_ROOT'] . '/lib/check.php';
+include $_SERVER['DOCUMENT_ROOT'] . 'config.php';
 $config = checkConfig();
 
 if($config['error'] == 1){
