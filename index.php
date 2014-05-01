@@ -53,11 +53,12 @@ if($config['error'] == 1){
 			    	    		<input name="remember" type="checkbox" value="Remember Me"> Remember Me
 			    	    	</label>
 			    	    </div>
-			    		<input class="btn btn-lg btn-success btn-block" type="submit" value="Login">
+			    		<input class="btn btn-lg btn-success btn-block" name="submit-btn" type="submit" value="Login">
 			    	</fieldset>
 			      	</form>
 			    </div>
 			</div>
+			<p style="padding-left: 15px;"><a href="$">Create an account</a> | <a href="">Learn More</a></p>
 		</div>
 	</div>
 </div>

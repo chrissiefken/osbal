@@ -1,16 +1,18 @@
 <?php
 
-$dom = new DomDocument();
-$dom->loadHTML($html);
+if (isset($_POST['submit-btn'])) {
+	$username = $_POST['name'];
+	$password = $_POST['password'];
+	$user = $username . ',' . $password . '\n';
+	$fp = fopen('accounts.txt', 'a+');
 
-$xpath = new DOMXPath($dom);
-
-$tags = $xpath->query('//input[type=password]');
-foreach ($tags as $tag) {
-	var_dump(trim($tag->getAttribute('value')));
+	if (fwrite($fp, $user)) {
+		echo 'complete';
+	}
+	fclose($fp);
 }
 
-$osbalpass = ;
+$osbalpass = $password;
 
 // Combine hashs.
 $md5pass- md5($osbalpass);
@@ -19,4 +21,3 @@ $cryptpass = crypt($sha1pass, osbal14s2343a);
 
 echo "$cryptpass";
 
-?>
