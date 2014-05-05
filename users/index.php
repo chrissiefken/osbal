@@ -3,32 +3,14 @@ include $_SERVER['DOCUMENT_ROOT'] . '/lib/header.php';
 
 ?>
 	<div class="well">
-		<form id="signup" class="form-horizontal" method="post" action="success.php">
+		<form id="signup" class="form-horizontal" method="post" action="create.php">
 			<legend>Create a new user.</legend>
 			<div class="control-group">
-				<label class="control-label">First Name</label>
+				<label class="control-label">Username</label>
 				<div class="controls">
 					<div class="input-prepend">
 						<span class="add-on"><i class="icon-user"></i></span>
-						<input type="text" class="input-xlarge" id="fname" name="fname" placeholder="First Name">
-					</div>
-				</div>
-			</div>
-			<div class="control-group ">
-				<label class="control-label">Last Name</label>
-				<div class="controls">
-					<div class="input-prepend">
-						<span class="add-on"><i class="icon-user"></i></span>
-						<input type="text" class="input-xlarge" id="lname" name="lname" placeholder="Last Name">
-					</div>
-				</div>
-			</div>
-			<div class="control-group">
-				<label class="control-label">Email</label>
-				<div class="controls">
-					<div class="input-prepend">
-						<span class="add-on"><i class="icon-envelope"></i></span>
-						<input type="text" class="input-xlarge" id="email" name="email" placeholder="Email">
+						<input type="text" class="input-xlarge" id="uname" name="uname" placeholder="Username">
 					</div>
 				</div>
 			</div>
