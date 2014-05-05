@@ -2,7 +2,6 @@
 include $_SERVER['DOCUMENT_ROOT'] . '/lib/header.php';
 
 ?>
-<div class="container">
 	<div class="well">
 		<form id="signup" class="form-horizontal" method="post" action="success.php">
 			<legend>Create a new user.</legend>
@@ -64,7 +63,6 @@ include $_SERVER['DOCUMENT_ROOT'] . '/lib/header.php';
 		</form>
 
 	</div>
-</div>
 <?php 
 include $_SERVER['DOCUMENT_ROOT'] . '/lib/footer.php';
 ?>

@@ -8,9 +8,11 @@ $error_count = 0;
 $list = '<ul class="list-group">';
 
 foreach($results as $result) {
-	if($result['error']==1){
+	if($result['error']==1 && $result['type'] == 'package'){
 		$error = '<span class="label label-danger pull-right">Error</span>';
 		$error_count += 1;
+	} else if ($result['error']==0 && $result['type'] == 'config'){
+		$error = '<span class="label label-danger pull-right">Already Configured!</span>';
 	} else {
 		$error = '<span class="label label-success pull-right">Ready</span>';
 	}
