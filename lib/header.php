@@ -25,7 +25,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/lib/global-settings.php';
 		      <span class="icon-bar"></span>
 		      <span class="icon-bar"></span>
 		    </button>
-		    <a class="navbar-brand" href="#">OSBal</a>
+		    <a class="navbar-brand" href="/install.php">OSBal</a>
 		  </div>
 		  <div class="navbar-collapse collapse navbar-responsive-collapse">
 		    <ul class="nav navbar-nav">
@@ -33,7 +33,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/lib/global-settings.php';
 		      <li><a href="/lb-settings/index.php">Load Balancer</a></li>
 		      <li><a href="#">Certificates</a></li>
 		      <li><a href="#">System Status</a></li>
-		      <li><a href="/create.php">User</a></li>
+		      <li><a href="users/index.php">User</a></li>
 		    </ul>
 		    <ul class="nav navbar-nav navbar-right">
 		      <li><a href="https://github.com/siefkencp/osbal">About</a></li>

@@ -58,7 +58,7 @@ if($config['error'] == 1){
 			      	</form>
 			    </div>
 			</div>
-			<p style="padding-left: 15px;"><a href="/create.php">Create an account</a> | <a href="https://github.com/siefkencp/osbal">Learn More</a></p>
+			<p style="padding-left: 15px;"><a href="users/index.php">Create an account</a> | <a href="https://github.com/siefkencp/osbal">Learn More</a></p>
 		</div>
 	</div>
 </div>
