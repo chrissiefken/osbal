@@ -1,7 +1,7 @@
 <?php
 //global server configuration settings are here
-
-$configPath = '/usr/local/osbal/config';
-$userFile = 'users';
-
+class ConfigFiles {
+	const configPath = '/usr/local/osbal/config/users';
+	const userFile = 'list.txt';
+}
 ?>
