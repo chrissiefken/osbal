@@ -10,6 +10,9 @@ class config {
 	//filename where SSL / stunnel settings are stored
 	const sslFile = 'ssl';
 
+	//filename where admin ip and subnet are stored
+	const adminIpSettings = '';
+
 	// environment settings
 	// if you are using Ubuntu 14.04 these don't need to be changed
 	const haproxyCfg = '/etc/haproxy/haproxy.cfg';

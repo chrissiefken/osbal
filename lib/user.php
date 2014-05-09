@@ -7,6 +7,6 @@ function createUser($username, $password) {
 	$cryptpass = crypt($sha1pass, osbal14s2343a);
 	
 	echo config::configPath . '/' . config::userFile;
-	file_put_contents(config::configPath . config::userFile, $username . ':' . $cryptpass, FILE_APPEND | LOCK_EX);
+	file_put_contents(config::configPath . config::userFile . '\n', $username . ':' . $cryptpass, FILE_APPEND | LOCK_EX);
 }
 ?>
