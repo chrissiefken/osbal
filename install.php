@@ -110,15 +110,36 @@ echo $alert;
 
 <script>
 	$('#step-3 .btn').click(function() {
-		$.post( "/api/updateAdminIp.php", 
-			{ ip: $('#ip').val()
-			, subnet: $('#subnet').val()
-			, gateway: $('#gateway').val()
-			, name: $('#name').val() })
-  		.done(function( data ) {
-    	alert( "Done: " + data );
-  		});
+		$.when(updateAdminIp() , createUser())
+		.done(function(){
+			alert('done');
+		});
+
   	});
+
+  	function updateAdminIp() {
+  		return $.ajax({
+  			type: "POST",
+  			url: "/api/updateAdminIp.php", 
+			data: { 
+				ip: $('#ip').val(),
+				subnet: $('#subnet').val(),
+				gateway: $('#gateway').val(),
+				name: $('#name').val()
+			}
+		});
+  	}
+
+  	function createUser() {
+  		return $.ajax({
+  			type: "POST",
+  			url: "/api/createUser.php",
+  			data: { 
+	  			uname: $('#userName').val(),
+	  			passwd: $('#inputPassword').val()
+	  		}
+  		});
+  	}
 </script>
 <?php 
 include $_SERVER['DOCUMENT_ROOT'] . '/lib/footer.php';
