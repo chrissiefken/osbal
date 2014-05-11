@@ -101,13 +101,25 @@ echo $alert;
 
 <div id="step-3" style="display:none;">
 	<h2>Bombs away!</h2>
-	<p>You are now ready to start using your load balancer! Just click below to restart with your new settings.</p>
+	<p>You are now ready to start using your load balancer! 
+		Just click below to restart networking with your new admin settings.</p>
 	<div class="pull-right">
-		<button id="next-btn" class="btn btn-default btn-lg" onclick="alert('restarting');">Restart</button>
+		<button id="next-btn" class="btn btn-default btn-lg">Apply Settings</button>
 	</div>
 </div>
 
-
+<script>
+	$('#step-3 .btn').click(function() {
+		$.post( "/api/updateAdminIp.php", 
+			{ ip: $('#ip').val()
+			, subnet: $('#subnet').val()
+			, gateway: $('#gateway').val()
+			, name: $('#name').val() })
+  		.done(function( data ) {
+    	alert( "Done: " + data );
+  		});
+  	});
+</script>
 <?php 
 include $_SERVER['DOCUMENT_ROOT'] . '/lib/footer.php';
 ?>

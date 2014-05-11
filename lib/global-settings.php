@@ -11,7 +11,11 @@ class config {
 	const sslFile = 'ssl';
 
 	//filename where admin ip and subnet are stored
-	const adminIpSettings = '';
+	const adminIpSettings = 'adminIp';
+
+	const haPatner = 'partner';
+
+	const lbServices = 'services';
 
 	// environment settings
 	// if you are using Ubuntu 14.04 these don't need to be changed
