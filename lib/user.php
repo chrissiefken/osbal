@@ -10,7 +10,7 @@ function createUser($username, $password) {
 	
 	echo config::configPath . '/' . config::userFile;
 	file_put_contents(config::configPath . config::userFile, 
-		$username . ':' . $cryptpass . "\n", 
+		$username . ':' . $sha1pass . "\n", 
 		FILE_APPEND | LOCK_EX
 		);
 }

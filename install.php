@@ -64,6 +64,23 @@ echo $alert;
         <input type="password" class="form-control" id="inputPassword" placeholder="Password">
       </div>
     </div>
+    <div class="form-group">
+	    <label class="col-lg-2 control-label">Change Network Settings</label>
+	    <div class="col-lg-10">
+	      <div class="radio">
+	        <label>
+	          <input type="radio" name="optionsRadios" id="optionsRadios1" value="option1" checked="">
+	          Set up my managment IP
+	        </label>
+	      </div>
+	      <div class="radio">
+	        <label>
+	          <input type="radio" name="optionsRadios" id="optionsRadios2" value="option2">
+	          My current IP is good or another services is managing my OS's IP.
+	        </label>
+	      </div>
+	    </div>
+	</div>
     <div class="well">
     	<fieldset>
     		<div class="form-group">
