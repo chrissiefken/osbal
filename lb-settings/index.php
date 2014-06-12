@@ -11,7 +11,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/lib/header.php';
     <h4 class="list-group-item-heading"><span class="glyphicon glyphicon-pencil"></span> 10.0.0.101</h4>
     <p class="list-group-item-text">api.example.com</p>
   </a>
-  <a href="#" class="list-group-item">
+  <a href="/lb-settings/createService.php" class="list-group-item">
     <h4 class="list-group-item-heading"><span class="glyphicon glyphicon-plus"></span> Create a new service</h4>
     </a>
 </div>
