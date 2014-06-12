@@ -18,7 +18,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/lib/global-settings.php';
 </head>
 <body>
 	<div class="container">
-		<div class="navbar navbar-default">
+		<div class="navbar navbar-inverse">
 		  <div class="navbar-header">
 		    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-responsive-collapse">
 		      <span class="icon-bar"></span>
@@ -31,9 +31,20 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/lib/global-settings.php';
 		    <ul class="nav navbar-nav">
 		      <li><a href="/reporting/index.php">Reporting</a></li>
 		      <li><a href="/lb-settings/index.php">Load Balancer</a></li>
-		      <li><a href="#">Certificates</a></li>
-		      <li><a href="#">System Status</a></li>
+		      
 		      <li><a href="users/index.php">User</a></li>
+		      <li class="dropdown">
+		        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Advanced <b class="caret"></b></a>
+		        <ul class="dropdown-menu">
+		          <li><a href="#">Managment IP</a></li>
+		          <li><a href="#">Certificates</a></li>
+		          <li><a href="#">System Status Check</a></li>
+		          <li><a href="#">HA Configuration</a></li>
+		          <li class="divider"></li>
+		          <li class="dropdown-header">Installed Extensions</li>
+		          <li><a href="#">IPS Extension</a></li>
+		        </ul>
+		      </li>
 		    </ul>
 		    <ul class="nav navbar-nav navbar-right">
 		      <li><a href="https://github.com/siefkencp/osbal">About</a></li>
