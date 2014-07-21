@@ -25,14 +25,14 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/lib/global-settings.php';
 		      <span class="icon-bar"></span>
 		      <span class="icon-bar"></span>
 		    </button>
-		    <a class="navbar-brand" href="/install.php">OSBal</a>
+		    <a class="navbar-brand" href="/reporting/index.php">OSBal</a>
 		  </div>
 		  <div class="navbar-collapse collapse navbar-responsive-collapse">
 		    <ul class="nav navbar-nav">
 		      <li><a href="/reporting/index.php">Reporting</a></li>
 		      <li><a href="/lb-settings/index.php">Load Balancer</a></li>
 		      
-		      <li><a href="users/index.php">User</a></li>
+		      <li><a href="/users/index.php">User</a></li>
 		      <li class="dropdown">
 		        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Advanced <b class="caret"></b></a>
 		        <ul class="dropdown-menu">
@@ -40,6 +40,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/lib/global-settings.php';
 		          <li><a href="#">Certificates</a></li>
 		          <li><a href="#">System Status Check</a></li>
 		          <li><a href="#">HA Configuration</a></li>
+		          <li><a href="/install.php">Install Wizard</a></li>
 		          <li class="divider"></li>
 		          <li class="dropdown-header">Installed Extensions</li>
 		          <li><a href="#">IPS Extension</a></li>
