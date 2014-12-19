@@ -12,7 +12,7 @@ include $_SERVER['DOCUMENT_ROOT'] . '/lib/header.php';
 		      </div>
 		    </div>
     		<div class="form-group">
-		      <label for="ip" class="col-lg-2 control-label">Mode</label>
+		      <label for="ip" class="col-lg-2 control-label">Service IP</label>
 		      <div class="col-lg-10">
 		        <input type="text" class="form-control" id="ip" placeholder="Service IP">
 		      </div>
@@ -57,7 +57,11 @@ include $_SERVER['DOCUMENT_ROOT'] . '/lib/header.php';
 	              </div>
 	            </div>
 	          </div>
-    	</fieldset>
+		    <div class="pull-right">
+				<button id="create-btn" class="btn btn-success btn-lg">Create Service</button>
+				<button id="create-btn" class="btn btn-default btn-lg">Cancel</button>
+			</div>
+		</fieldset>
     </div>
 </form>
 
