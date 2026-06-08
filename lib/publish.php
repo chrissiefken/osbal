@@ -21,7 +21,7 @@ function hasPendingChanges() {
     return file_exists(getPendingChangesFile());
 }
 
-function publishConfigs() {
+function publishConfigs($triggerSync = true) {
     // 1. Compile HAProxy Config (with reload=true)
     require_once $_SERVER['DOCUMENT_ROOT'] . '/lib/services.php';
     compileHaproxyConfig(null, true);
@@ -30,20 +30,37 @@ function publishConfigs() {
     require_once $_SERVER['DOCUMENT_ROOT'] . '/lib/ssl.php';
     compileStunnelConfig(null, true);
 
-    // 3. Compile Keepalived Config (read from network settings, with reload=true)
+    // 3. Compile Keepalived Config
     require_once $_SERVER['DOCUMENT_ROOT'] . '/lib/network.php';
-    $netSettings = getAdminSettings();
-    if (!empty($netSettings['ip'])) {
-        // Generate Keepalived config using virtual IP derived from subnet or config
-        // In simple bare-metal setups, the VIP is what Keepalived manages.
-        // Let's write the keepalived config using the saved management IP as VIP
-        // or a dedicated VIP setting. For simplicity, we'll compile Keepalived config
-        // using the adminSettings IP as the Virtual IP.
-        writeKeepalivedConfig($netSettings['ip'], 'eth0', 'MASTER', 51, 101, true);
+    require_once $_SERVER['DOCUMENT_ROOT'] . '/lib/ha.php';
+    $ha = getHaSettings();
+    
+    if ($ha['enabled'] && !empty($ha['virtual_ip'])) {
+        $role = $ha['role']; // MASTER or BACKUP
+        $priority = ($role === 'MASTER') ? 101 : 100;
+        writeKeepalivedConfig($ha['virtual_ip'], $ha['interface'], $role, $ha['router_id'], $priority, true);
+    } else {
+        // Fallback to standalone Keepalived if management IP exists
+        $netSettings = getAdminSettings();
+        if (!empty($netSettings['ip'])) {
+            writeKeepalivedConfig($netSettings['ip'], 'eth0', 'MASTER', 51, 101, true);
+        }
     }
 
     // 4. Clear pending changes flag
     clearPendingChanges();
-    return array('success' => true, 'message' => 'All configurations compiled and services reloaded successfully.');
+
+    // 5. Trigger automatic replication to partner node
+    $syncMsg = '';
+    if ($triggerSync && $ha['enabled'] && !empty($ha['partner_ip'])) {
+        $syncRes = triggerHaSync();
+        if ($syncRes['success']) {
+            $syncMsg = ' Partner node successfully synchronized.';
+        } else {
+            $syncMsg = ' (Warning: Sync to partner node failed: ' . $syncRes['message'] . ')';
+        }
+    }
+
+    return array('success' => true, 'message' => 'All configurations compiled and services reloaded successfully.' . $syncMsg);
 }
 ?>

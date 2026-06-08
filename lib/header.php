@@ -60,6 +60,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                     <a href="#">Advanced ▼</a>
                     <div class="dropdown-menu-custom">
                         <a href="/lb-settings/network.php">Management IP</a>
+                        <a href="/lb-settings/ssl.php">SSL Certificates</a>
+                        <a href="/lb-settings/ha.php">High Availability</a>
+                        <a href="/marketing/index.html#api" target="_blank">API Reference</a>
+                        <a href="/marketing/index.html#about" target="_blank">About OSBal</a>
                         <a href="/install.php">Install Wizard</a>
                         <a href="/logout.php">Sign Out</a>
                     </div>
