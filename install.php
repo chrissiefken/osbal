@@ -26,7 +26,11 @@ $list .= '</div>';
 if ($error_count != 0) {
     $alert = '
         <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: var(--danger); padding: 16px; border-radius: 12px; margin-bottom: 24px;">
-            <strong>Missing Dependencies!</strong> Please install the required packages on your system and refresh this page.
+            <strong>Missing Dependencies!</strong> Some utilities are missing on your host machine. Run the command below in your server terminal to install them, then refresh this page:
+            <div style="margin-top: 12px; display: flex; gap: 8px;">
+                <input type="text" class="form-control" readonly id="cli-cmd" value="sudo apt-get update && sudo apt-get install -y haproxy stunnel4 keepalived apache2 php" style="font-family: monospace; font-size: 0.85rem; padding: 10px; background: rgba(0,0,0,0.25); border: 1px solid var(--border-color); flex: 1;">
+                <button class="btn btn-secondary" onclick="navigator.clipboard.writeText(document.getElementById(\'cli-cmd\').value); alert(\'Copied command!\');" style="padding: 10px 14px; font-size: 0.85rem; font-weight:600;">Copy</button>
+            </div>
         </div>
     ';
     $next_disabled = 'disabled';

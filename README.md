@@ -4,16 +4,6 @@ OSBal is a modernized, open-source load balancer stack and configuration manager
 
 ---
 
-## Showcase Mockups
-
-### 1. Unified Analytics & Diagnostics Dashboard
-![OSBal Dashboard Mockup](img/dashboard.png)
-
-### 2. Network Interface Setup Wizard
-![OSBal Wizard Mockup](img/wizard.png)
-
----
-
 ## Core Capabilities
 
 * **Commercial-Grade Alternative**: A free alternative to closed-source hardware load balancers and virtual appliances.

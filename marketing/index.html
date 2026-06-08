@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OSBal - Open Source Highly Available Loadbalancer Appliance</title>
+    <link rel="stylesheet" href="/css/modern.css">
+    <style>
+        body {
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(92, 98, 236, 0.08) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(0, 242, 254, 0.06) 0px, transparent 50%),
+                radial-gradient(at 50% 100%, rgba(92, 98, 236, 0.05) 0px, transparent 50%);
+            padding-bottom: 80px;
+        }
+        
+        .hero {
+            text-align: center;
+            padding: 80px 0 60px 0;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-size: 3.2rem;
+            font-weight: 800;
+            line-height: 1.15;
+            background: linear-gradient(135deg, #ffffff 30%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+            letter-spacing: -0.02em;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 35px;
+        }
+
+        .hero-btns {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* SVG Diagram styles */
+        .diagram-container {
+            margin: 40px auto;
+            max-width: 750px;
+            background: rgba(13, 18, 30, 0.4);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .diagram-svg {
+            width: 100%;
+            height: auto;
+        }
+
+        /* Niche Section */
+        .niche-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 24px;
+            margin: 50px 0;
+        }
+
+        .niche-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            transition: transform 0.2s ease;
+        }
+        
+        .niche-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(0, 242, 254, 0.25);
+        }
+
+        .niche-card h3 {
+            color: var(--accent);
+            font-size: 1.15rem;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Feature Matrix Table */
+        .matrix-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .matrix-table th, .matrix-table td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .matrix-table th {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+        }
+
+        .matrix-table td {
+            font-size: 0.95rem;
+        }
+
+        .matrix-table td:first-child, .matrix-table th:first-child {
+            text-align: left;
+            font-weight: 500;
+            max-width: 200px;
+        }
+        
+        .matrix-table .highlight-col {
+            background: rgba(92, 98, 236, 0.08);
+            border-left: 1px solid rgba(92, 98, 236, 0.2);
+            border-right: 1px solid rgba(92, 98, 236, 0.2);
+        }
+        
+        .matrix-table tr:last-child .highlight-col {
+            border-bottom: 1px solid rgba(92, 98, 236, 0.2);
+            border-bottom-left-radius: 12px;
+            border-bottom-right-radius: 12px;
+        }
+
+        /* CLI Code Box */
+        .code-box {
+            background: #060913;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px 20px;
+            font-family: monospace;
+            color: #10b981;
+            font-size: 0.9rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 20px 0;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.5);
+        }
+
+        /* Hosting Cards */
+        .hosting-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-top: 24px;
+        }
+
+        @media (max-width: 768px) {
+            .niche-container, .hosting-grid {
+                grid-template-columns: 1fr;
+            }
+            .hero h1 {
+                font-size: 2.3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header Nav -->
+        <nav class="navbar-custom" style="margin-top: 20px;">
+            <a class="navbar-brand-custom" href="#">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent);"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
+                OSBal
+            </a>
+            <ul class="nav-links">
+                <li><a href="#features">Features</a></li>
+                <li><a href="#niche">The Niche</a></li>
+                <li><a href="#compare">Compare</a></li>
+                <li><a href="#hosting">Free Hosting</a></li>
+                <li><a href="https://github.com/siefkencp/osbal" target="_blank" class="btn btn-secondary" style="padding: 6px 14px; font-size: 0.85rem; border-radius: 8px;">GitHub</a></li>
+            </ul>
+        </nav>
+
+        <!-- Hero Section -->
+        <header class="hero">
+            <h1>Highly Available Load Balancing,<br>Visualized & Simplified.</h1>
+            <p>OSBal is a visual control panel for HAProxy, Keepalived, and Stunnel4. Convert any physical machine, VM, or Raspberry Pi into a secure, layer 7 load-balancing appliance in minutes.</p>
+            <div class="hero-btns">
+                <a href="#install" class="btn btn-primary">Get Started Now</a>
+                <a href="https://github.com/siefkencp/osbal" target="_blank" class="btn btn-secondary">View Source Code</a>
+            </div>
+        </header>
+
+        <!-- Dynamic Architecture Diagram -->
+        <section class="diagram-container">
+            <h3 style="text-align: center; margin-bottom: 20px; font-weight: 500;">Active-Passive VRRP High-Availability Workflow</h3>
+            <svg class="diagram-svg" viewBox="0 0 600 220">
+                <!-- User Browser node -->
+                <rect x="10" y="85" width="90" height="50" rx="8" fill="rgba(255,255,255,0.05)" stroke="var(--border-color)" stroke-width="1.5"/>
+                <text x="55" y="115" fill="#fff" font-size="10" font-family="sans-serif" text-anchor="middle" font-weight="600">Client Traffic</text>
+                
+                <!-- Client flow line -->
+                <line x1="100" y1="110" x2="150" y2="110" stroke="var(--text-muted)" stroke-width="1.5" stroke-dasharray="4"/>
+                <polygon points="150,110 144,107 144,113" fill="var(--text-muted)"/>
+                
+                <!-- VIP node -->
+                <rect x="155" y="70" width="100" height="80" rx="10" fill="rgba(0, 242, 254, 0.05)" stroke="var(--accent)" stroke-width="2"/>
+                <text x="205" y="105" fill="#fff" font-size="10" font-family="sans-serif" text-anchor="middle" font-weight="600">Virtual IP (VIP)</text>
+                <text x="205" y="125" fill="var(--accent)" font-size="9" font-family="monospace" text-anchor="middle">Keepalived VRRP</text>
+
+                <!-- Flow VIP to LB Master -->
+                <path d="M255,100 L300,75" stroke="var(--success)" stroke-width="1.5"/>
+                <polygon points="300,75 292,75 296,81" fill="var(--success)"/>
+                <text x="270" y="80" fill="var(--success)" font-size="8" font-family="sans-serif">Primary</text>
+
+                <!-- Flow VIP to LB Backup -->
+                <path d="M255,120 L300,145" stroke="var(--text-muted)" stroke-width="1.2" stroke-dasharray="2"/>
+                <polygon points="300,145 296,139 292,145" fill="var(--text-muted)"/>
+                <text x="282" y="145" fill="var(--text-muted)" font-size="8" font-family="sans-serif">Failover</text>
+
+                <!-- LB Node Master -->
+                <rect x="305" y="45" width="100" height="50" rx="8" fill="rgba(16, 185, 129, 0.08)" stroke="var(--success)" stroke-width="1.5"/>
+                <text x="355" y="70" fill="#fff" font-size="9" font-family="sans-serif" text-anchor="middle" font-weight="600">OSBal Master</text>
+                <text x="355" y="82" fill="var(--success)" font-size="8" font-family="monospace" text-anchor="middle">HAProxy + WAF</text>
+
+                <!-- LB Node Backup -->
+                <rect x="305" y="125" width="100" height="50" rx="8" fill="rgba(255,255,255,0.02)" stroke="var(--border-color)" stroke-width="1"/>
+                <text x="355" y="150" fill="var(--text-muted)" font-size="9" font-family="sans-serif" text-anchor="middle">OSBal Backup</text>
+                <text x="355" y="162" fill="var(--text-muted)" font-size="8" font-family="monospace" text-anchor="middle">Standby Node</text>
+
+                <!-- Outputs lines to Backend servers -->
+                <path d="M405,70 L470,70" stroke="var(--border-color)" stroke-width="1.5"/>
+                <path d="M405,70 L470,120" stroke="var(--border-color)" stroke-width="1"/>
+                
+                <!-- Backend Server Node 1 -->
+                <rect x="475" y="45" width="110" height="40" rx="6" fill="rgba(255,255,255,0.03)" stroke="var(--border-color)" stroke-width="1"/>
+                <text x="530" y="68" fill="#fff" font-size="9" font-family="sans-serif" text-anchor="middle">Backend Server 01</text>
+                
+                <!-- Backend Server Node 2 -->
+                <rect x="475" y="105" width="110" height="40" rx="6" fill="rgba(255,255,255,0.03)" stroke="var(--border-color)" stroke-width="1"/>
+                <text x="530" y="128" fill="#fff" font-size="9" font-family="sans-serif" text-anchor="middle">Backend Server 02</text>
+            </svg>
+        </section>
+
+        <!-- The Niche Section -->
+        <section id="niche" style="margin-top: 80px;">
+            <h2 style="text-align: center;">Why OSBal? Serving a Core Niche</h2>
+            <p style="text-align: center; max-width: 600px; margin: 0 auto 40px auto;">A load balancer built specifically for environments where cost, performance efficiency, and offline resilience are paramount.</p>
+            
+            <div class="niche-container">
+                <div class="niche-card">
+                    <h3>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                        Zero Bandwidth Fees
+                    </h3>
+                    <p>Unlike cloud load balancers (AWS ALB, Azure, GCP) that charge subscription hours plus data egress metrics, OSBal runs on your own hardware or VMs with unlimited bandwidth for free.</p>
+                </div>
+                <div class="niche-card">
+                    <h3>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="22" y1="12" x2="18" y2="12"></line><line x1="6" y1="12" x2="2" y2="12"></line><line x1="12" y1="6" x2="12" y2="2"></line><line x1="12" y1="22" x2="12" y2="18"></line></svg>
+                        Offline & Edge Ready
+                    </h3>
+                    <p>Perfect for private subnets, secure military networks, edge installations, or homelabs. OSBal functions 100% locally and does not depend on cloud APIs or WAN connection links.</p>
+                </div>
+                <div class="niche-card">
+                    <h3>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>
+                        Low Resource Footprint
+                    </h3>
+                    <p>Proprietary enterprise VMs require several cores and gigabytes of RAM. OSBal runs high-performance C binaries (HAProxy & Keepalived) using less than 512MB RAM on a Raspberry Pi.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Comparison Matrix Section -->
+        <section id="compare" class="card-glass" style="margin-top: 80px; padding: 40px;">
+            <h2 style="text-align: center; margin-bottom: 10px;">How OSBal Compares</h2>
+            <p style="text-align: center; max-width: 600px; margin: 0 auto 30px auto;">OSBal merges the visual convenience of enterprise appliances with the free, lightweight nature of raw open-source config files.</p>
+            
+            <div style="overflow-x: auto;">
+                <table class="matrix-table">
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th class="highlight-col" style="color: var(--accent);">OSBal</th>
+                            <th>Enterprise (F5/Citrix)</th>
+                            <th>Cloud (AWS ALB)</th>
+                            <th>Raw HAProxy Configs</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>License & Bandwidth Cost</td>
+                            <td class="highlight-col" style="color: var(--success); font-weight: 600;">$0 / Free Forever</td>
+                            <td>Thousands / Year</td>
+                            <td>Hourly + Egress fee</td>
+                            <td style="color: var(--success);">Free</td>
+                        </tr>
+                        <tr>
+                            <td>Configuration Interface</td>
+                            <td class="highlight-col">Premium Dark Web GUI</td>
+                            <td>Complex Legacy Web GUI</td>
+                            <td>Cloud Console / Terraform</td>
+                            <td>Raw Terminal Text files</td>
+                        </tr>
+                        <tr>
+                            <td>Local Edge / Offline Capable</td>
+                            <td class="highlight-col" style="color: var(--success);">Yes</td>
+                            <td style="color: var(--success);">Yes</td>
+                            <td style="color: var(--danger);">No (Cloud Only)</td>
+                            <td style="color: var(--success);">Yes</td>
+                        </tr>
+                        <tr>
+                            <td>Web Application Firewall (WAF)</td>
+                            <td class="highlight-col" style="color: var(--success);">Yes (Native & Free)</td>
+                            <td style="color: var(--success);">Yes (Paid Module)</td>
+                            <td style="color: var(--success);">Yes (Paid Module)</td>
+                            <td>Manual script plugins</td>
+                        </tr>
+                        <tr>
+                            <td>Hardware Requirements</td>
+                            <td class="highlight-col" style="color: var(--success); font-weight:600;">Ultra Low (&lt;512MB RAM)</td>
+                            <td>Heavy Server Hardware</td>
+                            <td>N/A (Managed SaaS)</td>
+                            <td style="color: var(--success);">Ultra Low</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features" style="margin-top: 80px;">
+            <h2 style="text-align: center; margin-bottom: 40px;">Appliance Highlights</h2>
+            <div class="grid-2">
+                <div class="card-glass">
+                    <h3 style="color: var(--accent); display:flex; align-items:center; gap:8px;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                        Optional WAF Shield
+                    </h3>
+                    <p>Toggle native SQL Injection (SQLi) query blocking, Cross-Site Scripting (XSS) filters, IP rate-limiting, and configure global IP Access Blacklists. Compiled directly into HAProxy ACL rules.</p>
+                </div>
+                <div class="card-glass">
+                    <h3 style="color: var(--accent); display:flex; align-items:center; gap:8px;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                        Realtime Stats Terminal
+                    </h3>
+                    <p>Inspect active connection stats, query response times, and filter blocks. Features a simulated live Access Logs terminal and stress simulator to test threshold behaviors.</p>
+                </div>
+                <div class="card-glass">
+                    <h3 style="color: var(--accent); display:flex; align-items:center; gap:8px;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                        3-Step Setup Wizard
+                    </h3>
+                    <p>Dynamic package diagnostics list automatically verifies that HProxy, Keepalived, and Stunnel are installed, guiding you through admin setups and network interfaces.</p>
+                </div>
+                <div class="card-glass">
+                    <h3 style="color: var(--accent); display:flex; align-items:center; gap:8px;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                        Visual Load Balancing
+                    </h3>
+                    <p>Create frontends, backends, and assign server nodes using balancing strategies like Round-Robin, Session Cookie-based stickiness, or Client IP hashing from a clean web form.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Install Commands Section -->
+        <section id="install" class="card-glass" style="margin-top: 80px; padding: 40px;">
+            <h2>Get Started in Your Terminal</h2>
+            <p>Ready to deploy? Copy the script below to install system dependencies, download the OSBal interface, configure system permissions, and launch the web server automatically.</p>
+            
+            <div class="code-box">
+                <span id="install-cmd">curl -sSL https://raw.githubusercontent.com/siefkencp/osbal/main/scripts/deploy.sh | bash</span>
+                <button class="btn btn-secondary" onclick="navigator.clipboard.writeText(document.getElementById('install-cmd').innerText); alert('Copied deployment script!');" style="padding: 6px 12px; font-size: 0.8rem; border-radius: 8px;">Copy</button>
+            </div>
+        </section>
+
+        <!-- Free Hosting Guide Section -->
+        <section id="hosting" style="margin-top: 80px;">
+            <h2 style="text-align: center; margin-bottom: 10px;">Free Hosting Architectures</h2>
+            <p style="text-align: center; max-width: 600px; margin: 0 auto 30px auto;">You can run your marketing website and a highly available production load balancer stack for free using modern cloud offerings.</p>
+            
+            <div class="hosting-grid">
+                <!-- Static Landing Page Hosting -->
+                <div class="card-glass" style="padding: 30px;">
+                    <h3 style="color: var(--success); display:flex; align-items:center; gap:8px; margin-bottom: 16px;">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+                        1. Free Landing Page Hosting
+                    </h3>
+                    <p>Host the static landing page (`/marketing`) or documentation portal for free on developer static CDN systems. Your changes will deploy instantly on git push:</p>
+                    <ul style="list-style: none; margin-top: 16px; display: flex; flex-direction: column; gap: 10px;">
+                        <li style="display:flex; align-items:center; gap:8px;">
+                            <span style="color: var(--success); font-weight:600;">✓</span> <strong>GitHub Pages</strong>: Deploy directly from your GitHub repo.
+                        </li>
+                        <li style="display:flex; align-items:center; gap:8px;">
+                            <span style="color: var(--success); font-weight:600;">✓</span> <strong>Vercel & Netlify</strong>: Free global edge network CDN.
+                        </li>
+                        <li style="display:flex; align-items:center; gap:8px;">
+                            <span style="color: var(--success); font-weight:600;">✓</span> <strong>Cloudflare Pages</strong>: Uncapped bandwidth static hosting.
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Load Balancer Appliance Hosting -->
+                <div class="card-glass" style="padding: 30px;">
+                    <h3 style="color: var(--accent); display:flex; align-items:center; gap:8px; margin-bottom: 16px;">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>
+                        2. Free Load Balancer Hosting
+                    </h3>
+                    <p>Deploy your production OSBal VM appliances completely for free on enterprise cloud compute tiers:</p>
+                    <ul style="list-style: none; margin-top: 16px; display: flex; flex-direction: column; gap: 10px;">
+                        <li style="display:flex; align-items:center; gap:8px;">
+                            <span style="color: var(--accent); font-weight:600;">✓</span> <strong>Oracle Cloud Always Free Tier</strong>: Deploy up to 4 ARM Ampere A1 VM cores and 24GB of RAM. Perfect for hosting two redundant OSBal nodes using Keepalived VRRP.
+                        </li>
+                        <li style="display:flex; align-items:center; gap:8px;">
+                            <span style="color: var(--accent); font-weight:600;">✓</span> <strong>AWS Free Tier</strong>: Get 750 free hours of micro EC2 instances.
+                        </li>
+                        <li style="display:flex; align-items:center; gap:8px;">
+                            <span style="color: var(--accent); font-weight:600;">✓</span> <strong>Fly.io Free Tier</strong>: Deploy small micro nodes for lightweight edge proxying.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </div>
+</body>
+</html>
