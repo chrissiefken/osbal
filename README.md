@@ -4,82 +4,98 @@ OSBal is a modernized, open-source load balancer stack and configuration manager
 
 ---
 
-## Core Goals & Capabilities
+## Showcase Mockups
 
-* **Commercial-Grade Alternative**: A free, open-source alternative to closed-source hardware load balancers and virtual appliances.
-* **Ease of Configuration**: Configure load balancing routing, SSL termination, and high-availability failover directly from a web browser without needing to manually edit complex config files.
-* **Low Footprint**: Runs comfortably on minimal hardware (e.g. Raspberry Pi or any VM with 1GB to 2GB RAM).
-* **Modern Security**: Secured using PHP session guards and modern bcrypt password hashing.
+### 1. Unified Analytics & Diagnostics Dashboard
+![OSBal Dashboard Mockup](img/dashboard.png)
 
----
-
-## Technical Stack
-
-* **Load Balancer (Proxy)**: [HAProxy](https://www.haproxy.org/) (Layer 7 HTTP and TCP proxying)
-* **High Availability**: [Keepalived](https://www.keepalived.org/) (Active-Passive VRRP VIP failover replacing legacy Heartbeat)
-* **SSL Termination**: [Stunnel4](https://www.stunnel.org/) (SSL/TLS decryption wrapper)
-* **Web GUI Webserver**: Apache2 with PHP 8.2+
+### 2. Network Interface Setup Wizard
+![OSBal Wizard Mockup](img/wizard.png)
 
 ---
 
-## Getting Started (Production Installation)
+## Core Capabilities
 
-### Step 1: Prepare Server Host
-Set up at least one server running a modern Debian-based Linux distribution (e.g. **Ubuntu 22.04/24.04 LTS** or **Raspberry Pi OS**).
-* For high-availability VRRP configurations, set up **two** identical nodes.
-* Assure each node has a unique, static management IP in your private network subnet.
+* **Commercial-Grade Alternative**: A free alternative to closed-source hardware load balancers and virtual appliances.
+* **Web-Based Management**: Configure load balancer routing, SSL termination, and high-availability failover directly from your web browser.
+* **Low Footprint**: Runs comfortably on minimal hardware (e.g. Raspberry Pi with 1GB to 2GB RAM).
+* **Native Web Application Firewall (WAF)**: Block SQL injections, Cross-Site Scripting (XSS), and rate-limit abusers natively in HAProxy.
+* **Real-time Traffic Stats**: Dynamic charting, access log terminals, and simulated stress testing built right into the interface.
 
-### Step 2: Install System Dependencies
-Update your package listings and install the required server utilities:
+---
+
+## Quick Start (Run & Test Instantly)
+
+You can run and test the web interface locally on your development machine using PHP's built-in webserver:
+
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/siefkencp/osbal.git
+   cd osbal
+   ```
+2. **Spin up the server**:
+   ```bash
+   php -S localhost:8080
+   ```
+3. **Access the GUI**: Open your browser and navigate to `http://localhost:8080/`.
+
+> [!NOTE]
+> **Development Fallback Mode**: When running locally without root privileges, OSBal operates in sandbox mode. It writes credentials, lists, and compiled HAProxy configs to a local `osbal/config/` directory instead of system `/etc/` paths, allowing you to test without permission conflicts.
+
+---
+
+## Appliance Production Setup (Ubuntu & Raspberry Pi)
+
+To turn a physical Ubuntu or Raspberry Pi OS server into a dedicated load balancer, follow these steps:
+
+### Step 1: Install System Packages
+Update your host machine's packages and install the load balancer utilities:
 ```bash
 sudo apt-get update
 sudo apt-get install -y haproxy stunnel4 keepalived apache2 php php-cli php-json
 ```
 
-### Step 3: Deploy the OSBal GUI
-1. Clone this repository or download the release archive:
-   ```bash
-   git clone https://github.com/siefkencp/osbal.git /tmp/osbal
-   ```
-2. Move the files to Apache's default Document Root directory:
-   ```bash
-   sudo rm -rf /var/www/html/*
-   sudo cp -r /tmp/osbal/* /var/www/html/
-   ```
-3. Establish correct ownership and directory permissions so that the Apache service (`www-data`) can write configurations:
-   ```bash
-   sudo chown -R www-data:www-data /var/www/html/
-   ```
+### Step 2: Deploy OSBal Web Files
+Clear Apache's default files and copy the OSBal codebase into the document root:
+```bash
+# Clear default files
+sudo rm -rf /var/www/html/*
 
-### Step 4: Configure system permission helpers (Optional)
-To allow the PHP web interface to reload HAProxy or Keepalived configuration files, grant `www-data` sudo permissions for service control. Run `sudo visudo` and append:
+# Clone the code into place
+git clone https://github.com/siefkencp/osbal.git /tmp/osbal
+sudo cp -r /tmp/osbal/* /var/www/html/
+
+# Set ownership to Apache's web user
+sudo chown -R www-data:www-data /var/www/html/
+```
+
+### Step 3: Enable Auto-Reload for HAProxy & Keepalived
+Allow the OSBal PHP backend to automatically apply rules and reload services without needing root passwords. Run `sudo visudo` and append the following lines to the bottom of the file:
 ```sudoers
 www-data ALL=(ALL) NOPASSWD: /usr/bin/systemctl reload haproxy
 www-data ALL=(ALL) NOPASSWD: /usr/bin/systemctl reload keepalived
 ```
 
-### Step 5: Run the Web Installer Wizard
-1. Open your web browser and navigate to the IP address of your load balancer (e.g., `http://your-server-ip/`).
-2. The installation wizard will guide you through:
-   * **System Check**: Checking if all binary dependencies are present.
-   * **User Creation**: Configuring your admin dashboard username and password.
-   * **Appliance Network**: Setting up management hostname and Virtual IP properties.
-3. Once completed, you will be automatically redirected to the dashboard sign-in screen.
+### Step 4: Run the Setup Wizard
+Point your web browser to the server's IP address (e.g. `http://192.168.1.100/`) and complete the 3-step setup:
+1. **System Check**: Verifies that all required system packages are present.
+2. **Admin Credentials**: Creates your administrator dashboard account.
+3. **Network Configuration**: Configures host hostname and management IP parameters.
 
 ---
 
-## Local Development & Testing
+## WAF & Realtime Stats Guides
 
-You can run and test the web interface locally on your development machine using PHP's built-in webserver:
+### Using the Web Application Firewall (WAF)
+1. **Enable Shields**: On the **Create Service** or **Load Balancer** page, click the WAF checkbox.
+2. **Select Protections**:
+   * **Block SQLi**: Rejects requests containing injection keywords (`UNION`, `SELECT`, `DROP`, etc.).
+   * **Block XSS**: Blocks requests with HTML script tags and javascript handlers (`<script>`, `onerror`, `onload`).
+   * **Rate Limiting**: Denies client IPs exceeding 100 requests per 10 seconds with a `429 Too Many Requests` code.
+3. **IP Blacklist**: Add malicious IP addresses line-by-line to the **Global IP Access Blacklist** form at the bottom of the load balancer settings page to block them globally.
 
-1. Navigate to the repository root directory:
-   ```bash
-   cd osbal
-   ```
-2. Spin up the server:
-   ```bash
-   php -S localhost:8080
-   ```
-3. Access the GUI at `http://localhost:8080/`.
-
-*Note: When running without root permissions, OSBal runs in **development fallback mode**. It saves credentials and compiled service settings in a local `osbal/config/` directory instead of writing to restricted `/etc/` system directories, preventing permission failures.*
+### Exploring the Real-Time Monitor
+Go to the **Realtime Stats** page to inspect network operations:
+* **Load Simulator**: Press **Low**, **Medium**, or **High** to mock traffic levels and watch connections, latency, and request rates react.
+* **Access Log Terminal**: Displays standard log entries mapping incoming IPs to destination backend nodes.
+* **DDoS Attack Test**: Press the **DDoS** button to simulate a high-volume request flood. You will see WAF rate-limiting rules engage in real time, appending red blocking alerts to the log terminal and counting up WAF-blocked request metrics.
