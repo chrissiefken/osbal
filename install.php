@@ -4,12 +4,20 @@ include $_SERVER['DOCUMENT_ROOT'] . '/lib/check.php';
 $results = checkStatus();
 
 $error_count = 0;
+$permissions_error = false;
 $list = '<div class="list-group" style="margin-bottom: 24px;">';
 
 foreach($results as $result) {
     if ($result['error'] == 1 && $result['type'] == 'package') {
         $badge = '<span class="badge badge-danger">Missing</span>';
         $error_count += 1;
+    } else if ($result['type'] == 'permissions') {
+        if ($result['error'] == 1) {
+            $permissions_error = true;
+            $badge = '<span class="badge" style="background: rgba(245, 158, 11, 0.15); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.3);">Sandbox</span>';
+        } else {
+            $badge = '<span class="badge badge-success">Production</span>';
+        }
     } else if ($result['error'] == 0 && $result['type'] == 'config') {
         $badge = '<span class="badge badge-success">Configured</span>';
     } else {
@@ -42,6 +50,28 @@ if ($error_count != 0) {
     ';
     $next_disabled = '';
 }
+
+$permissions_alert = '';
+if ($permissions_error) {
+    $permissions_alert = '
+        <div style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.25); color: #fff; padding: 18px; border-radius: 12px; margin-bottom: 24px;">
+            <strong style="color: var(--warning); font-size: 1.05rem; display: flex; align-items: center; gap: 6px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                Sandbox Fallback Mode Active
+            </strong>
+            <p style="margin: 8px 0 14px 0; font-size: 0.9rem; color: var(--text-muted); line-height: 1.5;">
+                The web server (`www-data`) does not have write permissions to `/etc/haproxy/`, `/etc/keepalived/`, or `/etc/stunnel/`. OSBal will run in <strong>Sandbox Fallback Mode</strong>: settings will write to a project-local `config` folder, and services will reload in bypass mode.
+            </p>
+            <p style="margin: 0 0 10px 0; font-size: 0.9rem; font-weight: 500; color: var(--warning);">
+                To enable Production Mode and reload physical services, run this command in your host terminal:
+            </p>
+            <div style="display: flex; gap: 8px;">
+                <input type="text" class="form-control" readonly id="permissions-cmd" value="sudo mkdir -p /usr/local/osbal/config /etc/stunnel/certs && sudo touch /etc/haproxy/haproxy.cfg /etc/keepalived/keepalived.conf /etc/stunnel/stunnel.conf && sudo chown -R www-data:www-data /usr/local/osbal/config /etc/stunnel/certs /etc/haproxy/haproxy.cfg /etc/keepalived/keepalived.conf /etc/stunnel/stunnel.conf" style="font-family: monospace; font-size: 0.85rem; padding: 10px; background: rgba(0,0,0,0.25); border: 1px solid var(--border-color); flex: 1;">
+                <button class="btn btn-secondary" onclick="navigator.clipboard.writeText(document.getElementById(\'permissions-cmd\').value); alert(\'Copied command!\');" style="padding: 10px 14px; font-size: 0.85rem; font-weight:600;">Copy</button>
+            </div>
+        </div>
+    ';
+}
 ?>
 
 <div class="card-glass" style="max-width: 650px; margin: 0 auto;">
@@ -59,6 +89,7 @@ if ($error_count != 0) {
         
         <?php echo $list; ?>
         <?php echo $alert; ?>
+        <?php echo $permissions_alert; ?>
         
         <div style="display:flex; justify-content:flex-end; margin-top:30px;">
             <button id="to-step-2" class="btn btn-primary" <?php echo $next_disabled; ?>>

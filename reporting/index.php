@@ -96,29 +96,79 @@ $area_coords .= $chart_width . "," . $chart_height;
 </div>
 
 <div class="grid-2">
-    <!-- Active Frontends List -->
-    <div class="card-glass">
-        <h3 style="border-bottom:1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 15px;">Appliance Services</h3>
-        <?php if (empty($services)): ?>
-            <p style="font-style:italic; font-size:0.9rem;">No services configured yet. Head to <a href="/lb-settings/index.php" style="color:var(--accent); text-decoration:none;">Load Balancer Settings</a> to create one.</p>
-        <?php else: ?>
-            <div class="list-group">
-                <?php foreach ($services as $service): ?>
-                    <div class="list-item" style="display:flex; justify-content:space-between; align-items:center;">
-                        <div>
-                            <div style="font-weight: 600;"><?php echo htmlspecialchars($service['name']); ?></div>
-                            <div style="font-size: 0.8rem; color: var(--text-muted); font-family: monospace;">
-                                <?php echo htmlspecialchars($service['ip']); ?>:<?php echo htmlspecialchars($service['port']); ?>
+    <!-- Active Frontends List & Connectivity Tester -->
+    <div class="card-glass" style="display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+            <h3 style="border-bottom:1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 15px;">Appliance Services</h3>
+            <?php if (empty($services)): ?>
+                <p style="font-style:italic; font-size:0.9rem;">No services configured yet. Head to <a href="/lb-settings/index.php" style="color:var(--accent); text-decoration:none;">Load Balancer Settings</a> to create one.</p>
+            <?php else: ?>
+                <div class="list-group" style="margin-bottom: 20px;">
+                    <?php foreach ($services as $service): ?>
+                        <div class="list-item" style="display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <div style="font-weight: 600;"><?php echo htmlspecialchars($service['name']); ?></div>
+                                <div style="font-size: 0.8rem; color: var(--text-muted); font-family: monospace;">
+                                    <?php echo htmlspecialchars($service['ip']); ?>:<?php echo htmlspecialchars($service['port']); ?>
+                                </div>
+                            </div>
+                            <div style="display:flex; align-items:center; gap: 8px;">
+                                <span class="badge" style="background:rgba(255,255,255,0.05); color:var(--text-muted); border:1px solid var(--border-color);"><?php echo htmlspecialchars($service['balance']); ?></span>
+                                <span class="badge badge-success">Online</span>
                             </div>
                         </div>
-                        <div style="display:flex; align-items:center; gap: 8px;">
-                            <span class="badge" style="background:rgba(255,255,255,0.05); color:var(--text-muted); border:1px solid var(--border-color);"><?php echo htmlspecialchars($service['balance']); ?></span>
-                            <span class="badge badge-success">Online</span>
-                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+        </div>
+
+        <!-- Connectivity Tester -->
+        <?php
+            $all_backend_nodes = array();
+            foreach ($services as $service) {
+                if (isset($service['servers'])) {
+                    foreach ($service['servers'] as $srv) {
+                        $key = $srv['ip'] . ':' . $srv['port'];
+                        $all_backend_nodes[$key] = array(
+                            'name' => $srv['name'] . ' (' . $service['name'] . ')',
+                            'ip' => $srv['ip'],
+                            'port' => $srv['port']
+                        );
+                    }
+                }
+            }
+        ?>
+        <div style="margin-top: 20px; border-top: 1px solid var(--border-color); padding-top: 20px;">
+            <h4 style="margin-top: 0; margin-bottom: 12px; color: var(--accent);">Backend Connectivity Tester</h4>
+            <form id="tester-form" style="margin-bottom: 0;">
+                <div class="grid-2" style="gap:10px; margin-bottom: 12px;">
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label class="form-label" style="font-size:0.75rem; margin-bottom:4px;">Select Node</label>
+                        <select class="form-control" id="test-node-select" style="height: 38px; font-size:0.85rem; padding: 6px 12px;">
+                            <option value="custom">-- Custom IP/Port --</option>
+                            <?php foreach ($all_backend_nodes as $key => $node): ?>
+                                <option value="<?php echo htmlspecialchars($key); ?>" data-ip="<?php echo htmlspecialchars($node['ip']); ?>" data-port="<?php echo htmlspecialchars($node['port']); ?>">
+                                    <?php echo htmlspecialchars($node['name']); ?> [<?php echo htmlspecialchars($key); ?>]
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
                     </div>
-                <?php endforeach; ?>
-            </div>
-        <?php endif; ?>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label class="form-label" style="font-size:0.75rem; margin-bottom:4px;">Target Port</label>
+                        <input type="number" class="form-control" id="test-port" placeholder="80" style="height: 38px; font-size:0.85rem; padding: 6px 12px;" required>
+                    </div>
+                </div>
+                <div class="form-group" id="custom-ip-group">
+                    <label class="form-label" style="font-size:0.75rem; margin-bottom:4px;">Target IP / Hostname</label>
+                    <input type="text" class="form-control" id="test-ip" placeholder="192.168.1.10" style="height: 38px; font-size:0.85rem; padding: 6px 12px;">
+                </div>
+
+                <button type="submit" id="btn-test-connect" class="btn btn-secondary" style="width: 100%; height:38px; font-size:0.85rem; margin-top:10px; justify-content:center;">
+                    Test Reachability
+                </button>
+            </form>
+            <div id="test-result" style="display:none; margin-top: 12px; padding:10px 14px; border-radius:10px; font-size:0.85rem; text-align:center;"></div>
+        </div>
     </div>
 
     <!-- System Status Check Summary -->
@@ -134,7 +184,7 @@ $area_coords .= $chart_width . "," . $chart_height;
             }
         ?>
         
-        <div style="background: rgba(255,255,255,0.01); border: 1px solid var(--border-color); border-radius:12px; padding: 15px; margin-bottom:15px; display:flex; gap:12px; align-items:center;">
+        <div style="background: rgba(255,255,255,0.01); border: 1px solid var(--border-color); border-radius:12px; padding: 15px; margin-bottom: 20px; display:flex; gap:12px; align-items:center;">
             <div style="background: <?php echo $all_ok ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)'; ?>; width: 42px; height: 42px; border-radius:50%; display:grid; place-items:center; color: <?php echo $all_ok ? 'var(--success)' : 'var(--danger)'; ?>; font-size:1.2rem; font-weight:700;">
                 <?php echo $all_ok ? '✓' : '⚠'; ?>
             </div>
@@ -145,12 +195,164 @@ $area_coords .= $chart_width . "," . $chart_height;
                 </div>
             </div>
         </div>
+
+        <!-- Service Daemon States -->
+        <h4 style="margin-bottom: 10px; color: var(--accent);">OS Daemons Status</h4>
+        <div class="list-group" style="margin-bottom: 20px;">
+            <div class="list-item" style="display:flex; justify-content:space-between; align-items:center; padding: 8px 12px;">
+                <div style="font-weight:500; font-size:0.9rem;">HAProxy (Load Balancer)</div>
+                <span id="status-haproxy" class="badge badge-secondary">Checking...</span>
+            </div>
+            <div class="list-item" style="display:flex; justify-content:space-between; align-items:center; padding: 8px 12px;">
+                <div style="font-weight:500; font-size:0.9rem;">Keepalived (VRRP Failover)</div>
+                <span id="status-keepalived" class="badge badge-secondary">Checking...</span>
+            </div>
+            <div class="list-item" style="display:flex; justify-content:space-between; align-items:center; padding: 8px 12px;">
+                <div style="font-weight:500; font-size:0.9rem;">Stunnel4 (SSL Proxy)</div>
+                <span id="status-stunnel4" class="badge badge-secondary">Checking...</span>
+            </div>
+        </div>
+
+        <div style="display:flex; gap:10px; justify-content:space-between; margin-bottom: 15px;">
+            <button id="btn-refresh-services" class="btn btn-secondary" style="padding: 8px 14px; font-size:0.85rem;">Refresh Services</button>
+            <button id="btn-validate-config" class="btn btn-primary" style="padding: 8px 14px; font-size:0.85rem;">Validate HAProxy Config</button>
+        </div>
+
+        <div id="validation-result" style="display:none; background:rgba(0,0,0,0.25); border:1px solid var(--border-color); padding:12px; border-radius:10px; font-family:monospace; font-size:0.8rem; white-space:pre-wrap; max-height:120px; overflow-y:auto; margin-bottom: 20px;"></div>
         
-        <div style="display:flex; justify-content:flex-end;">
-            <a href="/install.php" class="btn btn-secondary" style="padding: 8px 16px; font-size:0.85rem;">View Wizard Diagnostics &rarr;</a>
+        <div style="display:flex; justify-content:flex-end; border-top:1px solid var(--border-color); padding-top:15px;">
+            <a href="/install.php" class="btn btn-secondary" style="padding: 6px 12px; font-size:0.8rem; color:var(--text-muted);">View Wizard Diagnostics &rarr;</a>
         </div>
     </div>
 </div>
+
+<script>
+$(function() {
+    // 1. Service Status Checker
+    function updateServiceStatus(service) {
+        var badge = $('#status-' + service);
+        badge.removeClass('badge-success badge-danger').addClass('badge-secondary').text('Checking...');
+        
+        $.ajax({
+            type: "POST",
+            url: "/api/diagnostics.php",
+            data: { action: 'service_status', service: service }
+        }).done(function(res) {
+            if (res.success) {
+                if (res.active) {
+                    badge.removeClass('badge-secondary').addClass('badge-success').text('Active');
+                } else {
+                    badge.removeClass('badge-secondary').addClass('badge-danger').text('Inactive (' + res.output + ')');
+                }
+            } else {
+                badge.removeClass('badge-secondary').addClass('badge-danger').text('Error');
+            }
+        }).fail(function() {
+            badge.removeClass('badge-secondary').addClass('badge-danger').text('Failed to query');
+        });
+    }
+
+    function checkAllServices() {
+        updateServiceStatus('haproxy');
+        updateServiceStatus('keepalived');
+        updateServiceStatus('stunnel4');
+    }
+
+    // Run status checks on load
+    checkAllServices();
+
+    // Refresh handler
+    $('#btn-refresh-services').click(function() {
+        checkAllServices();
+    });
+
+    // 2. HAProxy Config Validator
+    $('#btn-validate-config').click(function() {
+        var btn = $(this);
+        var resultBox = $('#validation-result');
+        btn.prop('disabled', true).text('Validating...');
+        resultBox.hide().text('');
+
+        $.ajax({
+            type: "POST",
+            url: "/api/diagnostics.php",
+            data: { action: 'validate_configs' }
+        }).done(function(res) {
+            resultBox.show();
+            if (res.success) {
+                resultBox.css('border-color', 'var(--success)').css('color', 'var(--success)')
+                    .text('✓ Configuration syntax is OK.\n' + res.output);
+            } else {
+                resultBox.css('border-color', 'var(--danger)').css('color', 'var(--danger)')
+                    .text('✗ Syntax Error detected:\n' + res.output);
+            }
+        }).fail(function() {
+            resultBox.show().css('border-color', 'var(--danger)').css('color', 'var(--danger)')
+                .text('Failed to run syntax validation command.');
+        }).always(function() {
+            btn.prop('disabled', false).text('Validate HAProxy Config');
+        });
+    });
+
+    // 3. Connectivity Tester Dropdown Control
+    $('#test-node-select').change(function() {
+        var val = $(this).val();
+        if (val === 'custom') {
+            $('#custom-ip-group').slideDown();
+            $('#test-ip').prop('required', true).val('');
+            $('#test-port').val('');
+        } else {
+            var selected = $(this).find('option:selected');
+            $('#custom-ip-group').slideUp();
+            $('#test-ip').prop('required', false).val(selected.data('ip'));
+            $('#test-port').val(selected.data('port'));
+        }
+    });
+
+    // Handle Connectivity Tester Submit
+    $('#tester-form').submit(function(e) {
+        e.preventDefault();
+        var ip = $('#test-ip').val();
+        var port = $('#test-port').val();
+        var btn = $('#btn-test-connect');
+        var resBox = $('#test-result');
+
+        btn.prop('disabled', true).text('Connecting...');
+        resBox.hide().text('').removeClass('badge-success badge-danger');
+
+        $.ajax({
+            type: "POST",
+            url: "/api/diagnostics.php",
+            data: {
+                action: 'test_connection',
+                ip: ip,
+                port: port
+            }
+        }).done(function(res) {
+            resBox.show();
+            if (res.success) {
+                resBox.css('background', 'rgba(16, 185, 129, 0.1)')
+                    .css('border', '1px solid rgba(16, 185, 129, 0.2)')
+                    .css('color', 'var(--success)')
+                    .text(res.message);
+            } else {
+                resBox.css('background', 'rgba(239, 68, 68, 0.1)')
+                    .css('border', '1px solid rgba(239, 68, 68, 0.2)')
+                    .css('color', 'var(--danger)')
+                    .text(res.message);
+            }
+        }).fail(function() {
+            resBox.show()
+                .css('background', 'rgba(239, 68, 68, 0.1)')
+                .css('border', '1px solid rgba(239, 68, 68, 0.2)')
+                .css('color', 'var(--danger)')
+                .text('API connection failed.');
+        }).always(function() {
+            btn.prop('disabled', false).text('Test Reachability');
+        });
+    });
+});
+</script>
 
 <?php
 include $_SERVER['DOCUMENT_ROOT'] . '/lib/footer.php';

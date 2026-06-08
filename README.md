@@ -59,12 +59,22 @@ sudo cp -r /tmp/osbal/* /var/www/html/
 sudo chown -R www-data:www-data /var/www/html/
 ```
 
-### Step 3: Enable Auto-Reload for HAProxy & Keepalived
-Allow the OSBal PHP backend to automatically apply rules and reload services without needing root passwords. Run `sudo visudo` and append the following lines to the bottom of the file:
-```sudoers
-www-data ALL=(ALL) NOPASSWD: /usr/bin/systemctl reload haproxy
-www-data ALL=(ALL) NOPASSWD: /usr/bin/systemctl reload keepalived
-```
+### Step 3: Configure File Permissions & Sudo Access
+Allow the OSBal PHP backend (`www-data` user) to edit configuration files and reload/restart services without requiring a root password.
+
+1. **Set file ownership**: Run these commands in your host terminal to create the configuration folders and grant the web server permission to write to them:
+   ```bash
+   sudo mkdir -p /usr/local/osbal/config /etc/stunnel/certs
+   sudo touch /etc/haproxy/haproxy.cfg /etc/keepalived/keepalived.conf /etc/stunnel/stunnel.conf
+   sudo chown -R www-data:www-data /usr/local/osbal/config /etc/stunnel/certs /etc/haproxy/haproxy.cfg /etc/keepalived/keepalived.conf /etc/stunnel/stunnel.conf
+   ```
+
+2. **Grant sudo privileges for service controls**: Run `sudo visudo` and append the following lines to the bottom of the file:
+   ```sudoers
+   www-data ALL=(ALL) NOPASSWD: /usr/bin/systemctl reload haproxy
+   www-data ALL=(ALL) NOPASSWD: /usr/bin/systemctl reload keepalived
+   www-data ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart stunnel4
+   ```
 
 ### Step 4: Run the Setup Wizard
 Point your web browser to the server's IP address (e.g. `http://192.168.1.100/`) and complete the 3-step setup:

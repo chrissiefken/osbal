@@ -17,6 +17,9 @@ function checkStatus(){
         $status[] = checkRequirement($package, $binary);
     }
 
+    // check permissions
+    $status[] = checkPermissions();
+
     // check config
     $status[] = checkConfig();
 
@@ -37,6 +40,37 @@ function checkRequirement($package, $binary) {
     }
 
     return array('message' => $package . ' NOT installed', 'error' => true, 'type' => 'package');
+}
+
+function checkPermissions() {
+    $haproxyPath = '/etc/haproxy/haproxy.cfg';
+    $keepalivedPath = '/etc/keepalived/keepalived.conf';
+    $stunnelPath = '/etc/stunnel/stunnel.conf';
+    $certsDir = '/etc/stunnel/certs';
+    $configDir = '/usr/local/osbal/config';
+
+    $haproxyWritable = file_exists($haproxyPath) && is_writable($haproxyPath);
+    $keepalivedWritable = file_exists($keepalivedPath) && is_writable($keepalivedPath);
+    $stunnelWritable = file_exists($stunnelPath) && is_writable($stunnelPath);
+    $certsWritable = is_dir($certsDir) && is_writable($certsDir);
+    $configDirWritable = is_dir($configDir) && is_writable($configDir);
+
+    if ($haproxyWritable && $keepalivedWritable && $stunnelWritable && $certsWritable && $configDirWritable) {
+        return array('message' => 'System configuration permissions', 'error' => false, 'type' => 'permissions');
+    } else {
+        $missing = array();
+        if (!$haproxyWritable) $missing[] = 'HAProxy';
+        if (!$keepalivedWritable) $missing[] = 'Keepalived';
+        if (!$stunnelWritable) $missing[] = 'Stunnel';
+        if (!$certsWritable) $missing[] = 'Stunnel Certs';
+        if (!$configDirWritable) $missing[] = 'OSBal Config Dir';
+
+        return array(
+            'message' => 'Production write access missing (' . implode(', ', $missing) . ')',
+            'error' => true,
+            'type' => 'permissions'
+        );
+    }
 }
 
 function checkConfig(){
