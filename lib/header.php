@@ -1,11 +1,15 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 require_once $_SERVER['DOCUMENT_ROOT'] . '/lib/global-settings.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/lib/user.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/lib/publish.php';
 
-// Enforce session check on all pages except login/install wizard
+// Enforce session check on all pages except first-time install wizard
 $currentPage = $_SERVER['SCRIPT_NAME'];
-$isPublicPage = (strpos($currentPage, 'index.php') !== false || strpos($currentPage, 'install.php') !== false || strpos($currentPage, 'createUser.php') !== false);
+$users = getUsers();
+$isPublicPage = (empty($users) && substr($currentPage, -12) === '/install.php');
 
 if (!$isPublicPage) {
     checkAuth();
@@ -38,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent);"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
                 OSBal
             </a>
-            <?php if (!$isPublicPage || (session_status() === PHP_SESSION_ACTIVE && isset($_SESSION['authenticated']) && $_SESSION['authenticated'] === true)): ?>
+            <?php if (isset($_SESSION['authenticated']) && $_SESSION['authenticated'] === true): ?>
             <ul class="nav-links">
                 <li class="<?php echo (strpos($currentPage, 'reporting/index.php') !== false) ? 'active' : ''; ?>">
                     <a href="/reporting/index.php">Reporting</a>
