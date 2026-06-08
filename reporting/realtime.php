@@ -242,28 +242,17 @@ $(function() {
                     });
                 }
             } else {
-                // Configured, but HAProxy down
-                $('#kpi-connections').text('0');
-                $('#kpi-rps').html('0 <span style="font-size: 1.1rem; font-weight:500; color: var(--text-muted);">req/s</span>');
-                $('#kpi-latency').html('0.0 <span style="font-size: 1.1rem; font-weight:500; color: var(--text-muted);">ms</span>');
-                
-                chartPoints.push(0);
-                chartPoints.shift();
-                drawChart();
+                // HAProxy down or statistics unavailable - fallback to simulator
+                runSimulatorData();
                 
                 if (!window.errLogged) {
-                    logTerminal('<div style="color:var(--warning);">[WARNING] Unable to read HAProxy statistics. Verify the daemon is active and statistics are compiled.</div>');
+                    logTerminal('<div style="color:var(--warning);">[WARNING] Unable to read HAProxy statistics. Defaulting to sandbox simulator mockups. Please publish configurations to enable live metrics collection.</div>');
                     window.errLogged = true;
                 }
             }
         }).fail(function() {
-            $('#kpi-connections').text('0');
-            $('#kpi-rps').html('0 <span style="font-size: 1.1rem; font-weight:500; color: var(--text-muted);">req/s</span>');
-            $('#kpi-latency').html('0.0 <span style="font-size: 1.1rem; font-weight:500; color: var(--text-muted);">ms</span>');
-            
-            chartPoints.push(0);
-            chartPoints.shift();
-            drawChart();
+            // Fallback to simulator
+            runSimulatorData();
         });
     }
 

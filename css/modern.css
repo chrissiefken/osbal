@@ -42,6 +42,8 @@ body {
 
 /* Header & Navbar */
 .navbar-custom {
+    position: relative;
+    z-index: 1000;
     background: var(--bg-card);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);

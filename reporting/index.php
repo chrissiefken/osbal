@@ -26,14 +26,12 @@ if (!$isSandbox) {
 
 $activeConnectionsVal = 0;
 $throughputVal = "0.0";
-if ($isSandbox) {
+if ($isSandbox || $liveMetrics === null) {
     $activeConnectionsVal = 242;
     $throughputVal = "48.2";
 } else {
-    if ($liveMetrics !== null) {
-        $activeConnectionsVal = $liveMetrics['active_connections'];
-        $throughputVal = number_format($liveMetrics['throughput'], 1);
-    }
+    $activeConnectionsVal = $liveMetrics['active_connections'];
+    $throughputVal = number_format($liveMetrics['throughput'], 1);
 }
 
 // Determine VRRP HA Status dynamically
@@ -78,7 +76,7 @@ if ($ha['enabled']) {
 }
 
 // Generate connection chart points from connection history JSON
-if (!$isSandbox) {
+if (!$isSandbox && $liveMetrics !== null) {
     $connHistoryFile = config::getConfigDir() . 'connections_history.json';
     $chart_points = [];
     if (file_exists($connHistoryFile)) {
@@ -109,8 +107,17 @@ $area_coords .= $chart_width . "," . $chart_height;
 ?>
 
 <div style="margin-bottom: 30px;">
-    <h1>OSBal Console</h1>
-    <p>Real-time analytics, load distribution and service logs.</p>
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+        <div>
+            <h1 style="margin-bottom:6px;">OSBal Console</h1>
+            <p style="margin-bottom:0;">Real-time analytics, load distribution and service logs.</p>
+        </div>
+        <?php if (!$isSandbox && $liveMetrics === null): ?>
+            <div class="badge badge-danger" style="text-transform:none; padding:8px 14px; border-radius:10px; font-weight:600; font-size:0.85rem; border-color: rgba(239, 68, 68, 0.4);">
+                ⚠ Stats Socket Unreachable (Simulator Fallback Active)
+            </div>
+        <?php endif; ?>
+    </div>
 </div>
 
 <!-- KPI Cards -->
