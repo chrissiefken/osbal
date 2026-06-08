@@ -49,11 +49,7 @@ function writeKeepalivedConfig($vip, $interface = 'eth0', $role = 'MASTER', $rou
     $configContent .= "    }\n";
     $configContent .= "}\n";
 
-    file_put_contents($cfgPath, $configContent, LOCK_EX);
-
-    // If running as root, reload keepalived
-    if (posix_getuid() === 0) {
-        @shell_exec('systemctl reload keepalived');
-    }
+    require_once $_SERVER['DOCUMENT_ROOT'] . '/lib/system.php';
+    ApplianceSystem::reloadKeepalived();
 }
 ?>

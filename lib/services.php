@@ -226,9 +226,7 @@ function compileHaproxyConfig($services = null) {
     $haproxyCfgPath = config::getHaproxyCfg();
     file_put_contents($haproxyCfgPath, $cfg, LOCK_EX);
 
-    // Trigger reload of HAProxy if running as root
-    if (function_exists('posix_getuid') && posix_getuid() === 0) {
-        @shell_exec('systemctl reload haproxy');
-    }
+    require_once $_SERVER['DOCUMENT_ROOT'] . '/lib/system.php';
+    ApplianceSystem::reloadHaproxy();
 }
 ?>
