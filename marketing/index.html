@@ -323,6 +323,13 @@
                             <td>Manual script plugins</td>
                         </tr>
                         <tr>
+                            <td>Diagnostics & Testing Tools</td>
+                            <td class="highlight-col" style="color: var(--success); font-weight: 600;">Yes (Config checking & Reachability tester)</td>
+                            <td>Partial (Paid/CLI)</td>
+                            <td>Cloudwatch Metrics only</td>
+                            <td>CLI only (No UI)</td>
+                        </tr>
+                        <tr>
                             <td>Hardware Requirements</td>
                             <td class="highlight-col" style="color: var(--success); font-weight:600;">Ultra Low (&lt;512MB RAM)</td>
                             <td>Heavy Server Hardware</td>
@@ -357,7 +364,7 @@
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
                         3-Step Setup Wizard
                     </h3>
-                    <p>Dynamic package diagnostics list automatically verifies that HProxy, Keepalived, and Stunnel are installed, guiding you through admin setups and network interfaces.</p>
+                    <p>Dynamic package diagnostics list automatically verifies that HAProxy, Keepalived, and Stunnel are installed, guiding you through admin setups and network interfaces.</p>
                 </div>
                 <div class="card-glass">
                     <h3 style="color: var(--accent); display:flex; align-items:center; gap:8px;">
@@ -365,6 +372,20 @@
                         Visual Load Balancing
                     </h3>
                     <p>Create frontends, backends, and assign server nodes using balancing strategies like Round-Robin, Session Cookie-based stickiness, or Client IP hashing from a clean web form.</p>
+                </div>
+                <div class="card-glass">
+                    <h3 style="color: var(--accent); display:flex; align-items:center; gap:8px;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+                        Config Syntax Validator
+                    </h3>
+                    <p>Validate compilation syntax before reloads. Invokes the official `haproxy -c` config check directly from the web console, preventing bad parameters from crashing active services.</p>
+                </div>
+                <div class="card-glass">
+                    <h3 style="color: var(--accent); display:flex; align-items:center; gap:8px;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                        Backend Reachability Tester
+                    </h3>
+                    <p>Run instant socket reachability tests from the load balancer appliance to backend IPs and ports. Verify connection latency (in ms) or receive detailed system-level socket failure reports.</p>
                 </div>
             </div>
         </section>
