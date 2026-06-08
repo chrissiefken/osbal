@@ -86,20 +86,24 @@ $activeCerts = getSslCertificates();
             <div class="form-group">
                 <label class="form-label" for="name">Friendly Name / Domain</label>
                 <input type="text" class="form-control" id="name" name="name" placeholder="example.com" required>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; margin-bottom: 0;">A descriptive label (e.g. domain name) to identify this certificate profile.</p>
             </div>
 
             <div class="grid-3" style="gap:12px;">
                 <div class="form-group">
                     <label class="form-label" for="bind_ip">Bind IP</label>
                     <input type="text" class="form-control" id="bind_ip" name="bind_ip" value="*" required>
+                    <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; margin-bottom: 0;">Listening IP. Use <code>*</code> for all interfaces.</p>
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="bind_port">Bind Port</label>
                     <input type="number" class="form-control" id="bind_port" name="bind_port" value="443" min="1" max="65535" required>
+                    <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; margin-bottom: 0;">Public HTTPS/TLS port (typically <code>443</code>).</p>
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="target_port">Target Port</label>
                     <input type="number" class="form-control" id="target_port" name="target_port" placeholder="80" min="1" max="65535" required>
+                    <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; margin-bottom: 0;">Local HAProxy HTTP port to forward decrypted traffic (e.g. <code>80</code>).</p>
                 </div>
             </div>
             

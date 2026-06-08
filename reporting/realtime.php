@@ -1,6 +1,7 @@
 <?php
 include $_SERVER['DOCUMENT_ROOT'] . '/lib/header.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/lib/services.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/lib/system.php';
 
 $services = getServices();
 $service_names = array();
@@ -17,6 +18,8 @@ foreach ($services as $id => $service) {
 // Convert arrays to JSON for Javascript use
 $services_json = json_encode($service_names);
 $pools_json = json_encode($server_pools);
+
+$isSandbox = ApplianceSystem::isSandbox();
 ?>
 
 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 30px; flex-wrap:wrap; gap: 12px;">
@@ -24,6 +27,7 @@ $pools_json = json_encode($server_pools);
         <h1 style="margin-bottom:6px;">Real-Time Traffic Monitor</h1>
         <p style="margin-bottom:0;">Live metrics feed, latency charts, and access logs from the HAProxy load balancer.</p>
     </div>
+    <?php if ($isSandbox): ?>
     <div class="card-glass" style="padding: 10px 18px; margin-bottom:0; display:flex; align-items:center; gap: 10px;">
         <span style="font-size:0.8rem; color:var(--text-muted); font-weight:600; text-transform:uppercase;">Simulator Load:</span>
         <div style="display:inline-flex; gap: 6px;">
@@ -33,6 +37,12 @@ $pools_json = json_encode($server_pools);
             <button class="btn btn-secondary sim-load-btn" data-load="ddos" style="padding: 6px 12px; font-size: 0.8rem; border-radius: 8px; border-color:var(--danger); color:var(--danger);">DDoS</button>
         </div>
     </div>
+    <?php else: ?>
+    <div class="card-glass" style="padding: 10px 18px; margin-bottom:0; display:flex; align-items:center; gap: 10px; border-color: rgba(16, 185, 129, 0.25);">
+        <span class="badge badge-success" style="animation: pulse 2s infinite;">Live Engine Active</span>
+        <style>@keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }</style>
+    </div>
+    <?php endif; ?>
 </div>
 
 <!-- KPI Summary Widgets -->
@@ -104,6 +114,7 @@ $(function() {
     var services = <?php echo $services_json; ?>;
     var pools = <?php echo $pools_json; ?>;
     var currentLoad = 'med'; // 'low', 'med', 'high', 'ddos'
+    var isSandbox = <?php echo $isSandbox ? 'true' : 'false'; ?>;
     
     // Stats variables
     var activeConnections = 240;
@@ -112,7 +123,7 @@ $(function() {
     var totalBlocked = 0;
     
     // Live chart data points (size 25)
-    var chartPoints = Array(25).fill(40);
+    var chartPoints = Array(25).fill(0);
     var chartHeight = 180;
     var chartWidth = 1000;
 
@@ -141,10 +152,8 @@ $(function() {
         $('#terminal').empty();
     });
 
-    // Loop logic to update charts and append logs
-    function updateMetrics() {
+    function runSimulatorData() {
         var multiplier = 1;
-        var latencyBase = 4;
         
         if (currentLoad === 'low') {
             activeConnections = Math.floor(40 + Math.random() * 20);
@@ -166,29 +175,96 @@ $(function() {
             requestRate = Math.floor(1800 + Math.random() * 600);
             latency = (42.1 + Math.random() * 38.5).toFixed(2);
             multiplier = 15;
-            
-            // Increment blocked counters
             var blocks = Math.floor(15 + Math.random() * 35);
             totalBlocked += blocks;
             $('#kpi-blocked').text(totalBlocked).css('color', 'var(--danger)');
         }
 
-        // Update view widgets
         $('#kpi-connections').text(activeConnections);
         $('#kpi-rps').html(requestRate + ' <span style="font-size: 1.1rem; font-weight:500; color: var(--text-muted);">req/s</span>');
         $('#kpi-latency').html(latency + ' <span style="font-size: 1.1rem; font-weight:500; color: var(--text-muted);">ms</span>');
 
-        // Chart shift logic
         var plotVal = requestRate;
-        if (currentLoad === 'ddos') plotVal = 250 + Math.random() * 50; // clamp chart scale
+        if (currentLoad === 'ddos') plotVal = 250 + Math.random() * 50;
         chartPoints.push(plotVal);
         chartPoints.shift();
-
-        // Redraw SVG path
         drawChart();
 
-        // Print request logs
         generateMockLogs(multiplier);
+    }
+
+    // Loop logic to update charts and append logs
+    function updateMetrics() {
+        if (isSandbox) {
+            runSimulatorData();
+            return;
+        }
+
+        // Production query
+        $.ajax({
+            type: "POST",
+            url: "/api/diagnostics.php",
+            data: { action: 'get_live_metrics' }
+        }).done(function(res) {
+            if (res.success && !res.sandbox) {
+                activeConnections = res.metrics.active_connections;
+                requestRate = res.metrics.request_rate;
+                latency = res.metrics.latency;
+                var blocked = res.metrics.blocked_requests;
+                
+                // Update widgets
+                $('#kpi-connections').text(activeConnections);
+                $('#kpi-rps').html(requestRate + ' <span style="font-size: 1.1rem; font-weight:500; color: var(--text-muted);">req/s</span>');
+                $('#kpi-latency').html(latency + ' <span style="font-size: 1.1rem; font-weight:500; color: var(--text-muted);">ms</span>');
+                $('#kpi-blocked').text(blocked).css('color', blocked > 0 ? 'var(--danger)' : 'var(--text-muted)');
+
+                // Chart shift
+                chartPoints.push(requestRate);
+                chartPoints.shift();
+                drawChart();
+
+                // Append logs
+                if (res.logs && res.logs.length > 0) {
+                    if (!window.recentLogs) window.recentLogs = [];
+                    res.logs.forEach(function(line) {
+                        if (window.recentLogs.indexOf(line) === -1) {
+                            window.recentLogs.push(line);
+                            if (window.recentLogs.length > 50) window.recentLogs.shift();
+                            
+                            var lineHtml = "";
+                            if (line.indexOf('BLOCKED') !== -1 || line.indexOf('ALERT') !== -1 || line.indexOf(' 403 ') !== -1 || line.indexOf(' 429 ') !== -1) {
+                                lineHtml = '<div style="color:var(--danger);">' + line + '</div>';
+                            } else {
+                                lineHtml = '<div style="color:var(--text-muted);">' + line + '</div>';
+                            }
+                            logTerminal(lineHtml);
+                        }
+                    });
+                }
+            } else {
+                // Configured, but HAProxy down
+                $('#kpi-connections').text('0');
+                $('#kpi-rps').html('0 <span style="font-size: 1.1rem; font-weight:500; color: var(--text-muted);">req/s</span>');
+                $('#kpi-latency').html('0.0 <span style="font-size: 1.1rem; font-weight:500; color: var(--text-muted);">ms</span>');
+                
+                chartPoints.push(0);
+                chartPoints.shift();
+                drawChart();
+                
+                if (!window.errLogged) {
+                    logTerminal('<div style="color:var(--warning);">[WARNING] Unable to read HAProxy statistics. Verify the daemon is active and statistics are compiled.</div>');
+                    window.errLogged = true;
+                }
+            }
+        }).fail(function() {
+            $('#kpi-connections').text('0');
+            $('#kpi-rps').html('0 <span style="font-size: 1.1rem; font-weight:500; color: var(--text-muted);">req/s</span>');
+            $('#kpi-latency').html('0.0 <span style="font-size: 1.1rem; font-weight:500; color: var(--text-muted);">ms</span>');
+            
+            chartPoints.push(0);
+            chartPoints.shift();
+            drawChart();
+        });
     }
 
     function drawChart() {

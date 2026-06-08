@@ -74,25 +74,40 @@ $ha = getHaSettings();
                         <option value="MASTER" <?php echo $ha['role'] === 'MASTER' ? 'selected' : ''; ?>>Master (Active Node)</option>
                         <option value="BACKUP" <?php echo $ha['role'] === 'BACKUP' ? 'selected' : ''; ?>>Backup (Standby Node)</option>
                     </select>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; margin-bottom: 0;">Specify if this is the primary active unit or standby failover node.</p>
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="virtual_ip">Shared Virtual IP (VIP)</label>
                     <input type="text" class="form-control" id="virtual_ip" name="virtual_ip" placeholder="192.168.1.250" value="<?php echo htmlspecialchars($ha['virtual_ip']); ?>">
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; margin-bottom: 0;">The floating IP address shared by both nodes that clients connect to.</p>
                 </div>
             </div>
 
-            <div class="grid-3" style="gap:12px;">
-                <div class="form-group">
-                    <label class="form-label" for="interface">Network NIC</label>
-                    <input type="text" class="form-control" id="interface" name="interface" placeholder="eth0" value="<?php echo htmlspecialchars($ha['interface']); ?>">
-                </div>
-                <div class="form-group">
-                    <label class="form-label" for="router_id">VRRP Router ID</label>
-                    <input type="number" class="form-control" id="router_id" name="router_id" min="1" max="255" value="<?php echo intval($ha['router_id']); ?>">
-                </div>
-                <div class="form-group">
-                    <label class="form-label" for="auth_pass">VRRP Password</label>
-                    <input type="password" class="form-control" id="auth_pass" name="auth_pass" value="<?php echo htmlspecialchars($ha['auth_pass']); ?>">
+            <!-- Collapsible Advanced VRRP settings -->
+            <div style="margin: 20px 0;">
+                <button type="button" id="toggle-advanced-vrrp" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem; border-radius: 8px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px;">
+                    <span>Show Advanced Cluster Parameters</span>
+                    <span id="adv-vrrp-arrow">▼</span>
+                </button>
+            </div>
+
+            <div id="advanced-vrrp-settings" style="display: none; background: rgba(255,255,255,0.01); border: 1px solid var(--border-color); padding: 20px; border-radius: 12px; margin-bottom: 24px; margin-top: 12px;">
+                <div class="grid-3" style="gap:12px;">
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label class="form-label" for="interface">Network NIC</label>
+                        <input type="text" class="form-control" id="interface" name="interface" placeholder="eth0" value="<?php echo htmlspecialchars($ha['interface']); ?>">
+                        <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; margin-bottom: 0;">Physical interface (e.g. <code>eth0</code>).</p>
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label class="form-label" for="router_id">VRRP Router ID</label>
+                        <input type="number" class="form-control" id="router_id" name="router_id" min="1" max="255" value="<?php echo intval($ha['router_id']); ?>">
+                        <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; margin-bottom: 0;">Unique cluster ID (1-255).</p>
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label class="form-label" for="auth_pass">VRRP Password</label>
+                        <input type="password" class="form-control" id="auth_pass" name="auth_pass" value="<?php echo htmlspecialchars($ha['auth_pass']); ?>">
+                        <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; margin-bottom: 0;">VRRP authentication secret.</p>
+                    </div>
                 </div>
             </div>
 
@@ -102,10 +117,12 @@ $ha = getHaSettings();
                 <div class="form-group">
                     <label class="form-label" for="partner_ip">Partner IP Address</label>
                     <input type="text" class="form-control" id="partner_ip" name="partner_ip" placeholder="192.168.1.102" value="<?php echo htmlspecialchars($ha['partner_ip']); ?>">
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; margin-bottom: 0;">Management IP address of the peer device to replicate config.</p>
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="api_key">Shared API Key</label>
                     <input type="password" class="form-control" id="api_key" name="api_key" placeholder="Enter remote API key" value="<?php echo htmlspecialchars($ha['api_key']); ?>">
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; margin-bottom: 0;">Secret key configured on the partner unit to authorize synching.</p>
                 </div>
             </div>
 
@@ -202,6 +219,24 @@ $(function() {
 });
 </script>
 <?php endif; ?>
+
+<script>
+$(function() {
+    $('#toggle-advanced-vrrp').click(function() {
+        var container = $('#advanced-vrrp-settings');
+        var arrow = $('#adv-vrrp-arrow');
+        if (container.is(':visible')) {
+            container.slideUp();
+            $(this).find('span:first').text('Show Advanced Cluster Parameters');
+            arrow.text('▼');
+        } else {
+            container.slideDown();
+            $(this).find('span:first').text('Hide Advanced Cluster Parameters');
+            arrow.text('▲');
+        }
+    });
+});
+</script>
 
 <?php
 include $_SERVER['DOCUMENT_ROOT'] . '/lib/footer.php';

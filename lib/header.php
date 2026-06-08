@@ -69,6 +69,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                     </div>
                 </li>
             </ul>
+            <script>
+            $(function() {
+                $('.dropdown-custom > a').on('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    $(this).parent().toggleClass('active');
+                });
+                $(document).on('click', function() {
+                    $('.dropdown-custom').removeClass('active');
+                });
+            });
+            </script>
             <?php endif; ?>
         </nav>
         <?php echo $publish_feedback; ?>

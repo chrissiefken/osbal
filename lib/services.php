@@ -143,6 +143,13 @@ function compileHaproxyConfig($services = null, $reload = false) {
     $cfg .= "    timeout client  50000\n";
     $cfg .= "    timeout server  50000\n\n";
 
+    // HAProxy local stats endpoint for metrics collection (bound strictly to loopback interface for security)
+    $cfg .= "listen stats\n";
+    $cfg .= "    bind 127.0.0.1:9000\n";
+    $cfg .= "    mode http\n";
+    $cfg .= "    stats enable\n";
+    $cfg .= "    stats uri /haproxy?stats\n\n";
+
     // Compile each service
     foreach ($services as $id => $service) {
         $frontName = "frontend_" . $id;

@@ -427,40 +427,178 @@
         <!-- API Documentation Section -->
         <section id="api" style="margin-top: 80px;">
             <h2 style="text-align: center; margin-bottom: 10px;">Developer & Clustering API</h2>
-            <p style="text-align: center; max-width: 600px; margin: 0 auto 30px auto;">OSBal exposes a fully featured REST API to query node diagnostics, export backups, and synchronize active-passive cluster configurations.</p>
+            <p style="text-align: center; max-width: 700px; margin: 0 auto 40px auto;">OSBal exposes a fully featured REST API on every node. This API allows external orchestration tools to export configuration states, deploy certificates, update blocklists, or synchronize redundant HA pairs.</p>
             
-            <div class="card-glass" style="padding: 30px; margin-bottom: 30px;">
-                <h3 style="color: var(--accent); margin-bottom: 12px; display:flex; align-items:center; gap:8px;">
+            <!-- Auth card -->
+            <div class="card-glass" style="padding: 30px; margin-bottom: 35px;">
+                <h3 style="color: var(--accent); margin-bottom: 12px; display:flex; align-items:center; gap:8px; font-size:1.2rem;">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-                    API Authentication
+                    API Authentication Header
                 </h3>
                 <p style="font-size:0.9rem; color:var(--text-muted); line-height:1.5; margin-bottom:15px;">
-                    All external API requests must include the remote sync key in the HTTP request headers. If HA is enabled, this matches the configured API Key.
+                    All external API requests must authorize by sending the cluster's shared secret API key. Add the key under one of the following HTTP headers. Requests without valid keys will receive a <code>401 Unauthorized</code> response.
                 </p>
-                <div style="background: #060913; border: 1px solid var(--border-color); padding: 12px 16px; border-radius: 8px; font-family: monospace; font-size: 0.85rem; color:#fff;">
-                    X-OSBAL-API-KEY: your_shared_api_secret_key
+                <div style="background: #060913; border: 1px solid var(--border-color); padding: 14px 18px; border-radius: 8px; font-family: monospace; font-size: 0.85rem; color:#fff; display:flex; flex-direction:column; gap:4px;">
+                    <div><span style="color:var(--accent);">X-OSBAL-API-KEY</span>: your_configured_api_key</div>
+                    <div style="color:var(--text-muted); font-size:0.75rem;">(Note: This key must match the 'Shared API Key' configured in the High Availability Clustering tab.)</div>
                 </div>
             </div>
 
-            <div class="grid-2">
-                <!-- GET Export Config -->
-                <div class="card-glass" style="padding: 24px;">
-                    <h4 style="color: var(--success); margin-top: 0; margin-bottom: 8px;">GET /api/config.php</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 12px;">Exports the entire database payload of the appliance (all frontends, backend pools, SSL credentials, WAF settings, and active HA router attributes).</p>
-                    <h5 style="margin-bottom: 6px; font-size: 0.8rem; text-transform: uppercase; color: var(--accent);">Example Curl:</h5>
-                    <div style="background: #060913; border: 1px solid var(--border-color); padding: 10px; border-radius: 8px; font-family: monospace; font-size: 0.75rem; color: #10b981; overflow-x: auto; white-space: nowrap;">
-                        curl -H "X-OSBAL-API-KEY: key" http://ip/api/config.php
+            <!-- Endpoint details -->
+            <div style="display:flex; flex-direction:column; gap:30px; margin-bottom: 40px;">
+                
+                <!-- GET Endpoint Card -->
+                <div class="card-glass" style="padding: 30px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid var(--border-color); padding-bottom:15px; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
+                        <h3 style="margin:0; font-size:1.3rem; color: var(--success);">GET /api/config.php</h3>
+                        <span class="badge badge-success">Export Configuration</span>
+                    </div>
+                    <p style="font-size:0.9rem; color:var(--text-muted); line-height:1.6; margin-bottom:15px;">
+                        Retrieves the complete appliance database structure. The output is a consolidated JSON object containing service configurations, SSL certificates, global IP blacklists, and HA router parameters.
+                    </p>
+                    
+                    <h4 style="font-size: 0.85rem; text-transform: uppercase; color: var(--accent); margin-bottom:10px;">HTTP Response Schema (200 OK):</h4>
+                    <div style="background: #060913; border: 1px solid var(--border-color); padding: 16px; border-radius: 8px; font-family: monospace; font-size: 0.8rem; color: #f8fafc; overflow-x: auto; margin-bottom: 20px; max-height: 250px; overflow-y: auto;">
+{
+  "success": true,
+  "config": {
+    "services": {
+      "service_unique_id": {
+        "id": "service_unique_id",
+        "name": "Production Web App",
+        "ip": "*",
+        "port": 80,
+        "mode": "http",
+        "balance": "roundrobin",
+        "waf_enabled": true,
+        "block_sqli": true,
+        "block_xss": true,
+        "rate_limit": true,
+        "servers": {
+          "node_unique_id": {
+            "id": "node_unique_id",
+            "name": "web-01",
+            "ip": "192.168.1.15",
+            "port": 8080,
+            "weight": 1,
+            "check": true
+          }
+        }
+      }
+    },
+    "ssl": {
+      "example.com": {
+        "name": "example.com",
+        "cert_pem": "-----BEGIN CERTIFICATE-----\n...",
+        "key_pem": "-----BEGIN PRIVATE KEY-----\n...",
+        "bindIp": "*",
+        "bindPort": 443,
+        "targetPort": 80,
+        "pemPath": "/etc/stunnel/certs/example.com.pem"
+      }
+    },
+    "blacklist": [
+      "192.168.1.180",
+      "203.0.113.15"
+    ],
+    "ha_settings": {
+      "enabled": true,
+      "role": "MASTER",
+      "virtual_ip": "192.168.1.250",
+      "interface": "eth0",
+      "router_id": 51,
+      "auth_pass": "osbal_vrrp",
+      "partner_ip": "192.168.1.102",
+      "api_key": "your_api_key"
+    }
+  }
+}
+                    </div>
+
+                    <h5 style="margin-bottom: 6px; font-size: 0.8rem; text-transform: uppercase; color: var(--accent);">Example cURL Command:</h5>
+                    <div style="background: #060913; border: 1px solid var(--border-color); padding: 10px 14px; border-radius: 8px; font-family: monospace; font-size: 0.75rem; color: #10b981; overflow-x: auto; white-space: nowrap;">
+                        curl -H "X-OSBAL-API-KEY: your_api_key" http://192.168.1.101/api/config.php
                     </div>
                 </div>
 
-                <!-- POST Import Sync Config -->
-                <div class="card-glass" style="padding: 24px;">
-                    <h4 style="color: var(--warning); margin-top: 0; margin-bottom: 8px;">POST /api/config.php</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 12px;">Overwrites local settings with the incoming JSON payload, swaps MASTER/BACKUP Keepalived roles, compiles system configs, and reloads active daemons.</p>
-                    <h5 style="margin-bottom: 6px; font-size: 0.8rem; text-transform: uppercase; color: var(--accent);">Example Curl:</h5>
-                    <div style="background: #060913; border: 1px solid var(--border-color); padding: 10px; border-radius: 8px; font-family: monospace; font-size: 0.75rem; color: #10b981; overflow-x: auto; white-space: nowrap;">
-                        curl -X POST -H "Content-Type: application/json" -H "X-OSBAL-API-KEY: key" -d @backup.json http://ip/api/config.php
+                <!-- POST Endpoint Card -->
+                <div class="card-glass" style="padding: 30px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid var(--border-color); padding-bottom:15px; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
+                        <h3 style="margin:0; font-size:1.3rem; color: var(--warning);">POST /api/config.php</h3>
+                        <span class="badge badge-danger">Import & Sync Config</span>
                     </div>
+                    <p style="font-size:0.9rem; color:var(--text-muted); line-height:1.6; margin-bottom:15px;">
+                        Overwrites the local appliance configuration database with the incoming JSON payload, triggers a compilation of configuration files, and restarts services.
+                    </p>
+                    
+                    <div style="background: rgba(245, 158, 11, 0.05); border: 1px solid rgba(245, 158, 11, 0.15); padding: 12px 16px; border-radius: 10px; font-size: 0.85rem; color: var(--warning); line-height: 1.5; margin-bottom: 20px;">
+                        <strong>Note on Clustering Role Swap:</strong> If the incoming payload contains <code>ha_settings</code>, OSBal automatically inverts the VRRP role (e.g. if the incoming role is <code>MASTER</code>, the receiving local node configures itself as <code>BACKUP</code>). This prevents duplicate MASTER conflicts.
+                    </div>
+
+                    <h4 style="font-size: 0.85rem; text-transform: uppercase; color: var(--accent); margin-bottom:10px;">HTTP Request Payload format:</h4>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom:10px;">Send a JSON payload matching the structure exported by the GET endpoint (with optional services, ssl, blacklist, or ha_settings objects).</p>
+
+                    <h5 style="margin-bottom: 6px; font-size: 0.8rem; text-transform: uppercase; color: var(--accent);">Example cURL Command:</h5>
+                    <div style="background: #060913; border: 1px solid var(--border-color); padding: 10px 14px; border-radius: 8px; font-family: monospace; font-size: 0.75rem; color: #10b981; overflow-x: auto; white-space: nowrap; margin-bottom:20px;">
+                        curl -X POST -H "Content-Type: application/json" -H "X-OSBAL-API-KEY: key" -d @backup.json http://192.168.1.102/api/config.php
+                    </div>
+
+                    <h4 style="font-size: 0.85rem; text-transform: uppercase; color: var(--accent); margin-bottom:10px;">HTTP Response Schema (200 OK):</h4>
+                    <div style="background: #060913; border: 1px solid var(--border-color); padding: 12px 16px; border-radius: 8px; font-family: monospace; font-size: 0.80rem; color: #fff; overflow-x: auto;">
+{
+  "success": true,
+  "message": "Configuration synchronized and reloaded successfully."
+}
+                    </div>
+                </div>
+            </div>
+
+            <!-- HTTP Error Status codes -->
+            <div class="card-glass" style="padding: 30px;">
+                <h3 style="color: var(--danger); margin-bottom: 15px; font-size:1.2rem;">API Response Status Codes Reference</h3>
+                <div style="overflow-x: auto;">
+                    <table style="width:100%; border-collapse:collapse; text-align:left; font-size:0.85rem;">
+                        <thead>
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <th style="padding:10px; color:var(--accent);">HTTP Code</th>
+                                <th style="padding:10px; color:var(--accent);">Meaning</th>
+                                <th style="padding:10px; color:var(--accent);">Condition</th>
+                                <th style="padding:10px; color:var(--accent);">JSON Response Example</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <td style="padding:12px 10px; font-weight:600; color:var(--success);">200 OK</td>
+                                <td style="padding:12px 10px;">Request Success</td>
+                                <td style="padding:12px 10px;">Config exported or successfully imported & reloaded.</td>
+                                <td style="padding:12px 10px; font-family:monospace; font-size:0.75rem;">{"success":true,"message":"..."}</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <td style="padding:12px 10px; font-weight:600; color:var(--warning);">400 Bad Request</td>
+                                <td style="padding:12px 10px;">Invalid Payload</td>
+                                <td style="padding:12px 10px;">JSON parsing failed or parameters are missing.</td>
+                                <td style="padding:12px 10px; font-family:monospace; font-size:0.75rem;">{"success":false,"message":"Invalid payload"}</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <td style="padding:12px 10px; font-weight:600; color:var(--danger);">401 Unauthorized</td>
+                                <td style="padding:12px 10px;">Auth Failure</td>
+                                <td style="padding:12px 10px;">Missing or incorrect <code>X-OSBAL-API-KEY</code> header.</td>
+                                <td style="padding:12px 10px; font-family:monospace; font-size:0.75rem;">{"success":false,"message":"Unauthorized"}</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <td style="padding:12px 10px; font-weight:600; color:var(--danger);">405 Method Not Allowed</td>
+                                <td style="padding:12px 10px;">Invalid Method</td>
+                                <td style="padding:12px 10px;">Endpoint queried using PUT, DELETE, or other method.</td>
+                                <td style="padding:12px 10px; font-family:monospace; font-size:0.75rem;">{"success":false,"message":"Unsupported method"}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding:12px 10px; font-weight:600; color:var(--danger);">500 Server Error</td>
+                                <td style="padding:12px 10px;">Reload Failed</td>
+                                <td style="padding:12px 10px;">Config stored locally, but daemon reload command failed.</td>
+                                <td style="padding:12px 10px; font-family:monospace; font-size:0.75rem;">{"success":false,"message":"Reload failed: ..."}</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </section>

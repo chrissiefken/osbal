@@ -2,6 +2,8 @@
 include $_SERVER['DOCUMENT_ROOT'] . '/lib/header.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/lib/services.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/lib/check.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/lib/system.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/lib/ha.php';
 
 $services = getServices();
 $service_count = count($services);
@@ -13,9 +15,84 @@ foreach ($services as $service) {
     }
 }
 
-// Generate some nice fake points for a beautiful SVG chart
-$chart_points = array(15, 38, 25, 45, 62, 55, 78, 92, 85, 110, 98, 125, 142);
+$isSandbox = ApplianceSystem::isSandbox();
+$liveMetrics = null;
+$stats = null;
+
+if (!$isSandbox) {
+    $liveMetrics = ApplianceSystem::getLiveMetrics();
+    $stats = ApplianceSystem::getHaproxyStats();
+}
+
+$activeConnectionsVal = 0;
+$throughputVal = "0.0";
+if ($isSandbox) {
+    $activeConnectionsVal = 242;
+    $throughputVal = "48.2";
+} else {
+    if ($liveMetrics !== null) {
+        $activeConnectionsVal = $liveMetrics['active_connections'];
+        $throughputVal = number_format($liveMetrics['throughput'], 1);
+    }
+}
+
+// Determine VRRP HA Status dynamically
+$ha = getHaSettings();
+$haStatus = 'Disabled';
+$haBadgeColor = 'var(--text-muted)';
+$haDotColor = 'var(--text-muted)';
+$haDotShadow = 'rgba(255, 255, 255, 0.1)';
+
+if ($ha['enabled']) {
+    if ($isSandbox) {
+        $haStatus = 'Active';
+        $haBadgeColor = 'var(--accent)';
+        $haDotColor = 'var(--success)';
+        $haDotShadow = 'var(--success)';
+    } else {
+        $serviceStatus = ApplianceSystem::getServiceStatus('keepalived');
+        if ($serviceStatus['active']) {
+            $interface = escapeshellarg($ha['interface']);
+            $ipOutput = [];
+            $ipCode = 0;
+            @exec("ip addr show dev {$interface} 2>&1", $ipOutput, $ipCode);
+            $ipText = implode(' ', $ipOutput);
+            if (strpos($ipText, $ha['virtual_ip']) !== false) {
+                $haStatus = 'Active (MASTER)';
+                $haBadgeColor = 'var(--accent)';
+                $haDotColor = 'var(--success)';
+                $haDotShadow = 'var(--success)';
+            } else {
+                $haStatus = 'Standby (BACKUP)';
+                $haBadgeColor = 'var(--warning)';
+                $haDotColor = 'var(--warning)';
+                $haDotShadow = 'var(--warning)';
+            }
+        } else {
+            $haStatus = 'Inactive (Error)';
+            $haBadgeColor = 'var(--danger)';
+            $haDotColor = 'var(--danger)';
+            $haDotShadow = 'var(--danger)';
+        }
+    }
+}
+
+// Generate connection chart points from connection history JSON
+if (!$isSandbox) {
+    $connHistoryFile = config::getConfigDir() . 'connections_history.json';
+    $chart_points = [];
+    if (file_exists($connHistoryFile)) {
+        $chart_points = json_decode(@file_get_contents($connHistoryFile), true);
+    }
+    if (!is_array($chart_points) || empty($chart_points)) {
+        $chart_points = array_fill(0, 15, 0);
+    }
+} else {
+    $chart_points = array(15, 38, 25, 45, 62, 55, 78, 92, 85, 110, 98, 125, 142);
+}
+
 $max_val = max($chart_points);
+if ($max_val <= 0) $max_val = 10;
 $chart_height = 180;
 $chart_width = 1000;
 $points_count = count($chart_points);
@@ -24,13 +101,11 @@ $svg_coords = "";
 $area_coords = "0," . $chart_height . " ";
 for ($i = 0; $i < $points_count; $i++) {
     $x = ($i / ($points_count - 1)) * $chart_width;
-    // scale y
     $y = $chart_height - (($chart_points[$i] / $max_val) * ($chart_height - 20)) - 10;
     $svg_coords .= "$x,$y ";
     $area_coords .= "$x,$y ";
 }
 $area_coords .= $chart_width . "," . $chart_height;
-
 ?>
 
 <div style="margin-bottom: 30px;">
@@ -52,15 +127,15 @@ $area_coords .= $chart_width . "," . $chart_height;
 
     <div class="card-glass" style="padding: 20px;">
         <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em; margin-bottom: 10px;">Throughput</div>
-        <div style="font-size: 2.2rem; font-weight: 700; color: #fff;">48.2 <span style="font-size: 1.1rem; font-weight:500; color: var(--text-muted);">Mb/s</span></div>
+        <div style="font-size: 2.2rem; font-weight: 700; color: #fff;"><?php echo $throughputVal; ?> <span style="font-size: 1.1rem; font-weight:500; color: var(--text-muted);">Mb/s</span></div>
     </div>
 
     <div class="card-glass" style="padding: 20px;">
         <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em; margin-bottom: 10px;">HA Host Status</div>
-        <div style="font-size: 2.2rem; font-weight: 700; color: var(--accent);">
+        <div style="font-size: 2.2rem; font-weight: 700; color: <?php echo $haBadgeColor; ?>;">
             <span style="display:inline-flex; align-items:center; gap: 8px;">
-                <span style="width:14px; height:14px; border-radius:50%; background:var(--success); box-shadow: 0 0 10px var(--success);"></span>
-                Active
+                <span style="width:14px; height:14px; border-radius:50%; background:<?php echo $haDotColor; ?>; box-shadow: 0 0 10px <?php echo $haDotShadow; ?>;"></span>
+                <?php echo $haStatus; ?>
             </span>
         </div>
     </div>
@@ -104,7 +179,33 @@ $area_coords .= $chart_width . "," . $chart_height;
                 <p style="font-style:italic; font-size:0.9rem;">No services configured yet. Head to <a href="/lb-settings/index.php" style="color:var(--accent); text-decoration:none;">Load Balancer Settings</a> to create one.</p>
             <?php else: ?>
                 <div class="list-group" style="margin-bottom: 20px;">
-                    <?php foreach ($services as $service): ?>
+                    <?php foreach ($services as $srvId => $service): 
+                        $statusBadgeClass = 'badge-success';
+                        $statusText = 'Online';
+                        $connText = '';
+                        
+                        if (!$isSandbox && $stats !== null) {
+                            $found = false;
+                            foreach ($stats as $row) {
+                                if ($row['pxname'] === 'frontend_' . $srvId && $row['svname'] === 'FRONTEND') {
+                                    $found = true;
+                                    if ($row['status'] === 'OPEN') {
+                                        $statusText = 'Active';
+                                        $statusBadgeClass = 'badge-success';
+                                    } else {
+                                        $statusText = $row['status'];
+                                        $statusBadgeClass = 'badge-danger';
+                                    }
+                                    $connText = '<span style="font-size:0.8rem; color:var(--text-muted); font-family:monospace; margin-right:8px;">(' . intval($row['scur']) . ' conns)</span>';
+                                    break;
+                                }
+                            }
+                            if (!$found) {
+                                $statusText = 'Inactive';
+                                $statusBadgeClass = 'badge-secondary';
+                            }
+                        }
+                    ?>
                         <div class="list-item" style="display:flex; justify-content:space-between; align-items:center;">
                             <div>
                                 <div style="font-weight: 600;"><?php echo htmlspecialchars($service['name']); ?></div>
@@ -113,8 +214,9 @@ $area_coords .= $chart_width . "," . $chart_height;
                                 </div>
                             </div>
                             <div style="display:flex; align-items:center; gap: 8px;">
+                                <?php echo $connText; ?>
                                 <span class="badge" style="background:rgba(255,255,255,0.05); color:var(--text-muted); border:1px solid var(--border-color);"><?php echo htmlspecialchars($service['balance']); ?></span>
-                                <span class="badge badge-success">Online</span>
+                                <span class="badge <?php echo $statusBadgeClass; ?>"><?php echo $statusText; ?></span>
                             </div>
                         </div>
                     <?php endforeach; ?>

@@ -62,5 +62,50 @@ if ($action === 'test_connection') {
     exit;
 }
 
+if ($action === 'get_live_metrics') {
+    if (!ApplianceSystem::isSandbox()) {
+        $metrics = ApplianceSystem::getLiveMetrics();
+        if ($metrics !== null) {
+            $logs = [];
+            if (file_exists('/var/log/haproxy.log') && is_readable('/var/log/haproxy.log')) {
+                $fileContent = @file('/var/log/haproxy.log');
+                if (is_array($fileContent)) {
+                    $logs = array_slice($fileContent, -10);
+                }
+            } else {
+                $output = [];
+                $code = 0;
+                @exec('sudo tail -n 10 /var/log/haproxy.log 2>&1', $output, $code);
+                if ($code === 0 && !empty($output) && strpos(implode('', $output), 'tail: ') === false && strpos(implode('', $output), 'permission') === false) {
+                    $logs = $output;
+                }
+            }
+            
+            $formattedLogs = [];
+            foreach ($logs as $line) {
+                $line = trim($line);
+                if (empty($line)) continue;
+                $formattedLogs[] = htmlspecialchars($line);
+            }
+            
+            echo json_encode([
+                'success' => true,
+                'sandbox' => false,
+                'metrics' => $metrics,
+                'logs' => $formattedLogs
+            ]);
+            exit;
+        }
+    }
+    
+    echo json_encode([
+        'success' => true,
+        'sandbox' => true,
+        'metrics' => null,
+        'logs' => []
+    ]);
+    exit;
+}
+
 echo json_encode(array('success' => false, 'message' => 'Invalid action.'));
 ?>

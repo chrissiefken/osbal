@@ -109,7 +109,18 @@ body {
     box-shadow: 0 10px 25px rgba(0,0,0,0.4);
 }
 
-.dropdown-custom:hover .dropdown-menu-custom {
+.dropdown-menu-custom::before {
+    content: '';
+    position: absolute;
+    top: -14px;
+    left: 0;
+    right: 0;
+    height: 14px;
+    background: transparent;
+}
+
+.dropdown-custom:hover .dropdown-menu-custom,
+.dropdown-custom.active .dropdown-menu-custom {
     display: block;
 }
 
