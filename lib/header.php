@@ -28,8 +28,11 @@ if (!$isPublicPage) {
             </a>
             <?php if (!$isPublicPage || (session_status() === PHP_SESSION_ACTIVE && isset($_SESSION['authenticated']) && $_SESSION['authenticated'] === true)): ?>
             <ul class="nav-links">
-                <li class="<?php echo (strpos($currentPage, 'reporting') !== false) ? 'active' : ''; ?>">
+                <li class="<?php echo (strpos($currentPage, 'reporting/index.php') !== false) ? 'active' : ''; ?>">
                     <a href="/reporting/index.php">Reporting</a>
+                </li>
+                <li class="<?php echo (strpos($currentPage, 'realtime.php') !== false) ? 'active' : ''; ?>">
+                    <a href="/reporting/realtime.php">Realtime Stats</a>
                 </li>
                 <li class="<?php echo (strpos($currentPage, 'lb-settings') !== false) ? 'active' : ''; ?>">
                     <a href="/lb-settings/index.php">Load Balancer</a>

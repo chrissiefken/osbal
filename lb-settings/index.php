@@ -23,6 +23,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $feedback = '<div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: var(--danger); padding: 12px; border-radius: 10px; margin-bottom: 20px; font-size: 0.9rem;">Invalid server parameters.</div>';
         }
+    } elseif (isset($_POST['action']) && $_POST['action'] === 'update_waf_settings') {
+        $serviceId = $_POST['service_id'];
+        $waf_enabled = isset($_POST['waf_enabled']) ? true : false;
+        $block_sqli = isset($_POST['block_sqli']) ? true : false;
+        $block_xss = isset($_POST['block_xss']) ? true : false;
+        $rate_limit = isset($_POST['rate_limit']) ? true : false;
+        
+        $services = getServices();
+        if (isset($services[$serviceId])) {
+            $srv = $services[$serviceId];
+            if (updateService($serviceId, $srv['name'], $srv['ip'], $srv['port'], $srv['mode'], $srv['balance'], $waf_enabled, $block_sqli, $block_xss, $rate_limit)) {
+                $feedback = '<div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); color: var(--success); padding: 12px; border-radius: 10px; margin-bottom: 20px; font-size: 0.9rem;">WAF settings updated successfully.</div>';
+            } else {
+                $feedback = '<div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: var(--danger); padding: 12px; border-radius: 10px; margin-bottom: 20px; font-size: 0.9rem;">Failed to update WAF settings.</div>';
+            }
+        }
+    } elseif (isset($_POST['action']) && $_POST['action'] === 'update_blacklist') {
+        $rawIps = isset($_POST['blacklist']) ? $_POST['blacklist'] : '';
+        $ips = preg_split('/[\r\n, ]+/', $rawIps);
+        $ips = array_filter(array_map('trim', $ips));
+        
+        $validIps = array();
+        $hasInvalid = false;
+        foreach ($ips as $ip) {
+            if (filter_var($ip, FILTER_VALIDATE_IP)) {
+                $validIps[] = $ip;
+            } else {
+                $hasInvalid = true;
+                $feedback = '<div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: var(--danger); padding: 12px; border-radius: 10px; margin-bottom: 20px; font-size: 0.9rem;">Invalid IP address format: ' . htmlspecialchars($ip) . '</div>';
+                break;
+            }
+        }
+        
+        if (!$hasInvalid) {
+            saveBlacklist($validIps);
+            $feedback = '<div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); color: var(--success); padding: 12px; border-radius: 10px; margin-bottom: 20px; font-size: 0.9rem;">IP Access Blacklist saved and compiled successfully.</div>';
+        }
     }
 }
 
@@ -66,10 +103,15 @@ $services = getServices();
         <div class="card-glass">
             <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:1px solid var(--border-color); padding-bottom: 20px; margin-bottom: 20px; flex-wrap:wrap; gap: 12px;">
                 <div>
-                    <div style="display:flex; align-items:center; gap:10px; margin-bottom: 6px;">
+                    <div style="display:flex; align-items:center; gap:10px; margin-bottom: 6px; flex-wrap:wrap;">
                         <h2 style="margin-bottom:0; font-size:1.4rem;"><?php echo htmlspecialchars($service['name']); ?></h2>
                         <span class="badge badge-success"><?php echo strtoupper($service['mode']); ?></span>
                         <span class="badge" style="background:rgba(255,255,255,0.05); color:var(--text-muted); border:1px solid var(--border-color);"><?php echo htmlspecialchars($service['balance']); ?></span>
+                        <?php if (isset($service['waf_enabled']) && $service['waf_enabled']): ?>
+                            <span class="badge" style="background:rgba(92, 98, 236, 0.15); color:var(--accent); border:1px solid rgba(92, 98, 236, 0.3);">WAF Active</span>
+                        <?php else: ?>
+                            <span class="badge" style="background:rgba(255,255,255,0.02); color:var(--text-muted); border:1px solid var(--border-color);">WAF Off</span>
+                        <?php endif; ?>
                     </div>
                     <div style="color:var(--accent); font-family: monospace; font-size: 1.05rem; font-weight:600;">
                         <?php echo htmlspecialchars($service['ip']); ?>:<?php echo htmlspecialchars($service['port']); ?>
@@ -158,9 +200,61 @@ $services = getServices();
                     </button>
                 </form>
             </div>
+
+            <!-- WAF Shield settings form -->
+            <div style="background: rgba(255,255,255,0.01); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; margin-top:20px;">
+                <h4 style="margin-bottom: 16px; font-size: 0.95rem; color: var(--accent); display:flex; align-items:center; gap:8px;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                    WAF Shield Settings
+                </h4>
+                <form method="POST" action="index.php" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+                    <input type="hidden" name="action" value="update_waf_settings">
+                    <input type="hidden" name="service_id" value="<?php echo $id; ?>">
+                    
+                    <div style="display:flex; gap: 20px; flex-wrap:wrap;">
+                        <label class="radio-label" style="font-size:0.85rem; display:flex; align-items:center; gap:6px;">
+                            <input type="checkbox" name="waf_enabled" value="1" <?php echo (isset($service['waf_enabled']) && $service['waf_enabled']) ? 'checked' : ''; ?> style="width:16px; height:16px;"> Enable WAF
+                        </label>
+                        <label class="radio-label" style="font-size:0.85rem; display:flex; align-items:center; gap:6px;">
+                            <input type="checkbox" name="block_sqli" value="1" <?php echo (isset($service['block_sqli']) && $service['block_sqli']) ? 'checked' : ''; ?> style="width:16px; height:16px;"> Block SQLi
+                        </label>
+                        <label class="radio-label" style="font-size:0.85rem; display:flex; align-items:center; gap:6px;">
+                            <input type="checkbox" name="block_xss" value="1" <?php echo (isset($service['block_xss']) && $service['block_xss']) ? 'checked' : ''; ?> style="width:16px; height:16px;"> Block XSS
+                        </label>
+                        <label class="radio-label" style="font-size:0.85rem; display:flex; align-items:center; gap:6px;">
+                            <input type="checkbox" name="rate_limit" value="1" <?php echo (isset($service['rate_limit']) && $service['rate_limit']) ? 'checked' : ''; ?> style="width:16px; height:16px;"> Rate Limiting
+                        </label>
+                    </div>
+                    
+                    <button class="btn btn-secondary" type="submit" style="padding: 8px 16px; font-size: 0.85rem; font-weight:600;">
+                        Update WAF Rules
+                    </button>
+                </form>
+            </div>
         </div>
     <?php endforeach; ?>
 <?php endif; ?>
+
+<!-- Global IP Access Blacklist -->
+<div class="card-glass" style="margin-top:40px;">
+    <h3 style="color:var(--danger); display:flex; align-items:center; gap:8px; margin-bottom:12px;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+        Global IP Access Blacklist
+    </h3>
+    <p>Specify IPv4/IPv6 addresses that should be denied access globally across all active WAF protected services.</p>
+    
+    <form method="POST" action="index.php" style="margin-top:16px;">
+        <input type="hidden" name="action" value="update_blacklist">
+        <div class="form-group">
+            <textarea class="form-control" name="blacklist" rows="4" placeholder="e.g.&#10;192.168.1.180&#10;203.0.113.55" style="font-family:monospace; font-size:0.9rem; resize:vertical;"><?php echo htmlspecialchars(implode("\n", getBlacklist())); ?></textarea>
+        </div>
+        <div style="display:flex; justify-content:flex-end;">
+            <button class="btn btn-primary" type="submit" style="background:var(--danger); box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);">
+                Save & Compile IP Blacklist
+            </button>
+        </div>
+    </form>
+</div>
 
 <?php
 include $_SERVER['DOCUMENT_ROOT'] . '/lib/footer.php';

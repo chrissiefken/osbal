@@ -5,6 +5,26 @@ function getServicesFile() {
     return config::getConfigDir() . config::lbServices;
 }
 
+function getBlacklistFile() {
+    $file = config::getConfigDir() . 'blacklist.lst';
+    if (!file_exists($file)) {
+        @file_put_contents($file, "");
+    }
+    return $file;
+}
+
+function getBlacklist() {
+    $file = getBlacklistFile();
+    $content = file_get_contents($file);
+    return array_filter(array_map('trim', explode("\n", $content)));
+}
+
+function saveBlacklist($ips) {
+    $file = getBlacklistFile();
+    file_put_contents($file, implode("\n", array_filter(array_map('trim', $ips))) . "\n", LOCK_EX);
+    compileHaproxyConfig();
+}
+
 function getServices() {
     $file = getServicesFile();
     if (!file_exists($file)) {
@@ -20,7 +40,7 @@ function saveServices($services) {
     compileHaproxyConfig($services);
 }
 
-function createService($name, $ip, $port, $mode = 'http', $balance = 'roundrobin') {
+function createService($name, $ip, $port, $mode = 'http', $balance = 'roundrobin', $waf_enabled = false, $block_sqli = false, $block_xss = false, $rate_limit = false) {
     $services = getServices();
     $id = uniqid();
     $services[$id] = array(
@@ -30,13 +50,17 @@ function createService($name, $ip, $port, $mode = 'http', $balance = 'roundrobin
         'port' => $port,
         'mode' => $mode,
         'balance' => $balance,
+        'waf_enabled' => (bool)$waf_enabled,
+        'block_sqli' => (bool)$block_sqli,
+        'block_xss' => (bool)$block_xss,
+        'rate_limit' => (bool)$rate_limit,
         'servers' => array()
     );
     saveServices($services);
     return $id;
 }
 
-function updateService($id, $name, $ip, $port, $mode, $balance) {
+function updateService($id, $name, $ip, $port, $mode, $balance, $waf_enabled = false, $block_sqli = false, $block_xss = false, $rate_limit = false) {
     $services = getServices();
     if (isset($services[$id])) {
         $services[$id]['name'] = $name;
@@ -44,6 +68,10 @@ function updateService($id, $name, $ip, $port, $mode, $balance) {
         $services[$id]['port'] = $port;
         $services[$id]['mode'] = $mode;
         $services[$id]['balance'] = $balance;
+        $services[$id]['waf_enabled'] = (bool)$waf_enabled;
+        $services[$id]['block_sqli'] = (bool)$block_sqli;
+        $services[$id]['block_xss'] = (bool)$block_xss;
+        $services[$id]['rate_limit'] = (bool)$rate_limit;
         saveServices($services);
         return true;
     }
@@ -122,15 +150,45 @@ function compileHaproxyConfig($services = null) {
         $bindIp = empty($service['ip']) ? '*' : $service['ip'];
         $bindPort = empty($service['port']) ? '80' : $service['port'];
         
+        $waf = isset($service['waf_enabled']) && $service['waf_enabled'];
+        
         // Frontend configuration
         $cfg .= "frontend " . $frontName . "\n";
         $cfg .= "    bind " . $bindIp . ":" . $bindPort . "\n";
         $cfg .= "    mode " . ($service['mode'] === 'tcp' ? 'tcp' : 'http') . "\n";
+        
+        // Apply WAF rules if enabled and mode is HTTP
+        if ($waf && $service['mode'] !== 'tcp') {
+            $blacklistPath = getBlacklistFile();
+            $cfg .= "    # WAF Rules\n";
+            $cfg .= "    acl is_blacklisted src -f " . $blacklistPath . "\n";
+            $cfg .= "    http-request deny deny_status 403 if is_blacklisted\n";
+            
+            if (isset($service['block_sqli']) && $service['block_sqli']) {
+                $cfg .= "    acl is_sqli query -m reg -i (select|insert|update|delete|drop|union)\n";
+                $cfg .= "    http-request deny deny_status 403 if is_sqli\n";
+            }
+            if (isset($service['block_xss']) && $service['block_xss']) {
+                $cfg .= "    acl is_xss query -m reg -i (<script|javascript:|onerror|onload|alert\\()\n";
+                $cfg .= "    http-request deny deny_status 403 if is_xss\n";
+            }
+            if (isset($service['rate_limit']) && $service['rate_limit']) {
+                $cfg .= "    http-request track-sc0 src table " . $backName . "\n";
+                $cfg .= "    http-request deny deny_status 429 if { sc_http_req_rate(0) gt 100 }\n";
+            }
+        }
+        
         $cfg .= "    default_backend " . $backName . "\n\n";
         
         // Backend configuration
         $cfg .= "backend " . $backName . "\n";
         $cfg .= "    mode " . ($service['mode'] === 'tcp' ? 'tcp' : 'http') . "\n";
+        
+        // Dynamic Rate Limiting Stick Table
+        if ($waf && isset($service['rate_limit']) && $service['rate_limit']) {
+            $cfg .= "    # Rate limiting table (max 100 requests per 10s per IP)\n";
+            $cfg .= "    stick-table type ip size 100k expire 10s store http_req_rate(10s)\n";
+        }
         
         // Balancing Strategy
         $strategy = $service['balance'];

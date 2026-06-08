@@ -9,12 +9,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $port = intval($_POST['port']);
     $mode = $_POST['mode'];
     $balance = $_POST['balance'];
+    $waf_enabled = isset($_POST['waf_enabled']) ? true : false;
+    $block_sqli = isset($_POST['block_sqli']) ? true : false;
+    $block_xss = isset($_POST['block_xss']) ? true : false;
+    $rate_limit = isset($_POST['rate_limit']) ? true : false;
 
     if (empty($name) || $port <= 0) {
         $error = 'Please fill out the Service Name and valid Bind Port.';
     } else {
         // Create the service
-        $id = createService($name, $ip, $port, $mode, $balance);
+        $id = createService($name, $ip, $port, $mode, $balance, $waf_enabled, $block_sqli, $block_xss, $rate_limit);
         if ($id) {
             header('Location: /lb-settings/index.php');
             exit;
@@ -84,6 +88,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
             </div>
         </div>
+
+        <!-- WAF Shield & Security -->
+        <h4 style="border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 16px; margin-top: 24px; color: var(--accent);">WAF Shield & Security</h4>
+        <div class="form-group">
+            <label class="radio-label" style="display:flex; align-items:center; gap:8px;">
+                <input type="checkbox" name="waf_enabled" id="waf_enabled" value="1" style="width:18px; height:18px; margin:0;">
+                <strong>Enable Web Application Firewall (WAF)</strong>
+            </label>
+            <p style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">Natively inspects HTTP queries and traffic thresholds in HAProxy to block SQLi/XSS scripts and limit request spikes.</p>
+        </div>
+
+        <div id="waf-settings" style="display:none; background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); padding: 20px; border-radius: 12px; margin-bottom: 24px; margin-top: 12px;">
+            <div class="form-group" style="margin-bottom:0;">
+                <label class="radio-label" style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
+                    <input type="checkbox" name="block_sqli" value="1" checked style="width:16px; height:16px; margin:0;"> Block SQL Injection (SQLi) patterns
+                </label>
+                <label class="radio-label" style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
+                    <input type="checkbox" name="block_xss" value="1" checked style="width:16px; height:16px; margin:0;"> Block Cross-Site Scripting (XSS) vectors
+                </label>
+                <label class="radio-label" style="display:flex; align-items:center; gap:8px; margin-bottom:0;">
+                    <input type="checkbox" name="rate_limit" value="1" checked style="width:16px; height:16px; margin:0;"> Rate Limiting (max 100 requests per 10s per IP)
+                </label>
+            </div>
+        </div>
+
+        <script>
+        $(function() {
+            $('#waf_enabled').change(function() {
+                if ($(this).is(':checked')) {
+                    $('#waf-settings').slideDown();
+                } else {
+                    $('#waf-settings').slideUp();
+                }
+            });
+        });
+        </script>
 
         <div style="display:flex; justify-content:flex-end; gap: 12px; border-top: 1px solid var(--border-color); padding-top: 24px; margin-top: 30px;">
             <a href="/lb-settings/index.php" class="btn btn-secondary">Cancel</a>
