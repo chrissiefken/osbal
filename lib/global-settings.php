@@ -1,26 +1,49 @@
 <?php
-//global server configuration settings are here
+// global server configuration settings are here
 class config {
-	//path to a writable settings directory
-	const configPath = '/usr/local/osbal/config/';
+    // Determine the path to a writable settings directory
+    public static function getConfigDir() {
+        $path = '/usr/local/osbal/config/';
+        if (!is_dir($path) || !is_writable($path)) {
+            // Fallback to project-local config directory
+            $path = dirname(__DIR__) . '/config/';
+            if (!file_exists($path)) {
+                @mkdir($path, 0755, true);
+            }
+        }
+        return $path;
+    }
 
-	//filename where usernames and hashed passwords are stored
-	const userFile = 'users';
+    // Config files
+    const userFile = 'users.json';
+    const sslFile = 'ssl.json';
+    const adminIpSettings = 'adminIp.json';
+    const haPartner = 'partner.json';
+    const lbServices = 'services.json';
 
-	//filename where SSL / stunnel settings are stored
-	const sslFile = 'ssl';
+    // Environment/System settings
+    public static function getHaproxyCfg() {
+        $path = '/etc/haproxy/haproxy.cfg';
+        if (!file_exists($path) || !is_writable($path)) {
+            return self::getConfigDir() . 'haproxy.cfg';
+        }
+        return $path;
+    }
 
-	//filename where admin ip and subnet are stored
-	const adminIpSettings = 'adminIp';
+    public static function getStunnelCfg() {
+        $path = '/etc/stunnel/stunnel.conf';
+        if (!file_exists($path) || !is_writable($path)) {
+            return self::getConfigDir() . 'stunnel.conf';
+        }
+        return $path;
+    }
 
-	const haPatner = 'partner';
-
-	const lbServices = 'services';
-
-	// environment settings
-	// if you are using Ubuntu 14.04 these don't need to be changed
-	const haproxyCfg = '/etc/haproxy/haproxy.cfg';
-	const stunnelCfg = '/etc/stunnel/ssl.conf';
-	const sslDirectory = ''; 
+    public static function getKeepalivedCfg() {
+        $path = '/etc/keepalived/keepalived.conf';
+        if (!file_exists($path) || !is_writable($path)) {
+            return self::getConfigDir() . 'keepalived.conf';
+        }
+        return $path;
+    }
 }
 ?>
