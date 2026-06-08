@@ -37,7 +37,8 @@ function getServices() {
 
 function saveServices($services) {
     file_put_contents(getServicesFile(), json_encode($services, JSON_PRETTY_PRINT), LOCK_EX);
-    compileHaproxyConfig($services);
+    require_once $_SERVER['DOCUMENT_ROOT'] . '/lib/publish.php';
+    setPendingChanges();
 }
 
 function createService($name, $ip, $port, $mode = 'http', $balance = 'roundrobin', $waf_enabled = false, $block_sqli = false, $block_xss = false, $rate_limit = false) {
@@ -116,7 +117,7 @@ function removeServerFromService($serviceId, $serverId) {
     return false;
 }
 
-function compileHaproxyConfig($services = null) {
+function compileHaproxyConfig($services = null, $reload = false) {
     if ($services === null) {
         $services = getServices();
     }
@@ -226,7 +227,9 @@ function compileHaproxyConfig($services = null) {
     $haproxyCfgPath = config::getHaproxyCfg();
     file_put_contents($haproxyCfgPath, $cfg, LOCK_EX);
 
-    require_once $_SERVER['DOCUMENT_ROOT'] . '/lib/system.php';
-    ApplianceSystem::reloadHaproxy();
+    if ($reload) {
+        require_once $_SERVER['DOCUMENT_ROOT'] . '/lib/system.php';
+        ApplianceSystem::reloadHaproxy();
+    }
 }
 ?>

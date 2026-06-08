@@ -18,7 +18,8 @@ function getSslCertificates() {
 
 function saveSslCertificates($certs) {
     file_put_contents(getSslFile(), json_encode($certs, JSON_PRETTY_PRINT), LOCK_EX);
-    compileStunnelConfig($certs);
+    require_once $_SERVER['DOCUMENT_ROOT'] . '/lib/publish.php';
+    setPendingChanges();
 }
 
 function getCertsDir() {
@@ -69,7 +70,7 @@ function deleteCertificate($name) {
     return false;
 }
 
-function compileStunnelConfig($certs = null) {
+function compileStunnelConfig($certs = null, $reload = false) {
     if ($certs === null) {
         $certs = getSslCertificates();
     }
@@ -103,6 +104,8 @@ function compileStunnelConfig($certs = null) {
     file_put_contents($stunnelCfgPath, $cfg, LOCK_EX);
 
     // Trigger stunnel restart
-    ApplianceSystem::restartStunnel();
+    if ($reload) {
+        ApplianceSystem::restartStunnel();
+    }
 }
 ?>
