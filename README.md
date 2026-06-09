@@ -34,19 +34,35 @@ You can run and test the web interface locally on your development machine using
 
 ---
 
-## Appliance Production Setup (Ubuntu & Raspberry Pi)
+## Appliance Production Setup & Upgrades (Ubuntu & Raspberry Pi)
 
-To turn a physical Ubuntu or Raspberry Pi OS server into a dedicated load balancer, follow these steps:
+To turn a physical Ubuntu or Raspberry Pi OS server into a dedicated load balancer, or to upgrade an existing deployment, you can use our single-line deployment script.
 
-### Step 1: Install System Packages
-Update your host machine's packages and install the load balancer utilities:
+### Recommended: Automated Installation & Upgrades
+
+The deployment script automatically installs packages, clones the code, configures file permissions, and sets up passwordless service reloading.
+
+Run the following command in your terminal:
 ```bash
-sudo apt-get update
-sudo apt-get install -y haproxy stunnel4 keepalived apache2 php php-cli php-json
+curl -sSL https://raw.githubusercontent.com/siefkencp/osbal/main/scripts/deploy.sh | sudo bash
 ```
 
-### Step 2: Deploy OSBal Web Files
-Clear Apache's default files and copy the OSBal codebase into the document root:
+> [!TIP]
+> **Seamless Upgrades**: Running this command on an existing OSBal appliance automatically detects the current installation, backups your configurations, cleans code directories, deploys the latest version, and restores your database without downtime.
+
+---
+
+### Advanced: Manual Installation
+
+If you prefer to configure the appliance manually, execute the following commands as root:
+
+#### Step 1: Install System Packages
+```bash
+sudo apt-get update
+sudo apt-get install -y haproxy stunnel4 keepalived apache2 php php-cli php-json git
+```
+
+#### Step 2: Deploy OSBal Web Files
 ```bash
 # Clear default files
 sudo rm -rf /var/www/html/*
@@ -59,10 +75,10 @@ sudo cp -r /tmp/osbal/* /var/www/html/
 sudo chown -R www-data:www-data /var/www/html/
 ```
 
-### Step 3: Configure File Permissions & Sudo Access
+#### Step 3: Configure File Permissions & Sudo Access
 Allow the OSBal PHP backend (`www-data` user) to edit configuration files and reload/restart services without requiring a root password.
 
-1. **Set file ownership**: Run these commands in your host terminal to create the configuration folders and grant the web server permission to write to them:
+1. **Set file ownership**: Create config directories and assign permissions:
    ```bash
    sudo mkdir -p /usr/local/osbal/config /etc/stunnel/certs
    sudo touch /etc/haproxy/haproxy.cfg /etc/keepalived/keepalived.conf /etc/stunnel/stunnel.conf
@@ -76,11 +92,8 @@ Allow the OSBal PHP backend (`www-data` user) to edit configuration files and re
    www-data ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart stunnel4
    ```
 
-### Step 4: Run the Setup Wizard
-Point your web browser to the server's IP address (e.g. `http://192.168.1.100/`) and complete the 3-step setup:
-1. **System Check**: Verifies that all required system packages are present.
-2. **Admin Credentials**: Creates your administrator dashboard account.
-3. **Network Configuration**: Configures host hostname and management IP parameters.
+#### Step 4: Run the Setup Wizard
+Point your web browser to the server's IP address (e.g. `http://192.168.1.100/`) and complete the 3-step setup to create your credentials and network interfaces.
 
 ---
 
