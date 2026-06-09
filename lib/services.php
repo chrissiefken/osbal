@@ -41,7 +41,7 @@ function saveServices($services) {
     setPendingChanges();
 }
 
-function createService($name, $ip, $port, $mode = 'http', $balance = 'roundrobin', $waf_enabled = false, $block_sqli = false, $block_xss = false, $rate_limit = false) {
+function createService($name, $ip, $port, $mode = 'http', $balance = 'roundrobin', $waf_enabled = false, $block_sqli = false, $block_xss = false, $rate_limit = false, $ssl_enabled = false, $ssl_port = 443, $ssl_cert_name = '') {
     $services = getServices();
     $id = uniqid();
     $services[$id] = array(
@@ -55,13 +55,16 @@ function createService($name, $ip, $port, $mode = 'http', $balance = 'roundrobin
         'block_sqli' => (bool)$block_sqli,
         'block_xss' => (bool)$block_xss,
         'rate_limit' => (bool)$rate_limit,
+        'ssl_enabled' => (bool)$ssl_enabled,
+        'ssl_port' => intval($ssl_port),
+        'ssl_cert_name' => $ssl_cert_name,
         'servers' => array()
     );
     saveServices($services);
     return $id;
 }
 
-function updateService($id, $name, $ip, $port, $mode, $balance, $waf_enabled = false, $block_sqli = false, $block_xss = false, $rate_limit = false) {
+function updateService($id, $name, $ip, $port, $mode, $balance, $waf_enabled = false, $block_sqli = false, $block_xss = false, $rate_limit = false, $ssl_enabled = null, $ssl_port = null, $ssl_cert_name = null) {
     $services = getServices();
     if (isset($services[$id])) {
         $services[$id]['name'] = $name;
@@ -73,6 +76,17 @@ function updateService($id, $name, $ip, $port, $mode, $balance, $waf_enabled = f
         $services[$id]['block_sqli'] = (bool)$block_sqli;
         $services[$id]['block_xss'] = (bool)$block_xss;
         $services[$id]['rate_limit'] = (bool)$rate_limit;
+        
+        if ($ssl_enabled !== null) {
+            $services[$id]['ssl_enabled'] = (bool)$ssl_enabled;
+        }
+        if ($ssl_port !== null) {
+            $services[$id]['ssl_port'] = intval($ssl_port);
+        }
+        if ($ssl_cert_name !== null) {
+            $services[$id]['ssl_cert_name'] = $ssl_cert_name;
+        }
+        
         saveServices($services);
         return true;
     }

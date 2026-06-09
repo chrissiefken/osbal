@@ -69,7 +69,13 @@ $ha = getHaSettings();
 
             <div class="grid-2" style="gap:12px;">
                 <div class="form-group">
-                    <label class="form-label" for="role">Node Role</label>
+                    <label class="form-label" for="role">
+                        Node Role
+                        <span class="help-tooltip">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                            <span class="tooltip-text">Specifies if this node is the primary Active (MASTER) load balancer, or the standby failover Passive (BACKUP) node.</span>
+                        </span>
+                    </label>
                     <select class="form-control" id="role" name="role" required>
                         <option value="MASTER" <?php echo $ha['role'] === 'MASTER' ? 'selected' : ''; ?>>Master (Active Node)</option>
                         <option value="BACKUP" <?php echo $ha['role'] === 'BACKUP' ? 'selected' : ''; ?>>Backup (Standby Node)</option>
@@ -77,7 +83,13 @@ $ha = getHaSettings();
                     <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; margin-bottom: 0;">Specify if this is the primary active unit or standby failover node.</p>
                 </div>
                 <div class="form-group">
-                    <label class="form-label" for="virtual_ip">Shared Virtual IP (VIP)</label>
+                    <label class="form-label" for="virtual_ip">
+                        Shared Virtual IP (VIP)
+                        <span class="help-tooltip">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                            <span class="tooltip-text">The single floating IP address shared by the cluster. Clients connect to this IP, and VRRP fails it over to the Backup node if the Master goes down.</span>
+                        </span>
+                    </label>
                     <input type="text" class="form-control" id="virtual_ip" name="virtual_ip" placeholder="192.168.1.250" value="<?php echo htmlspecialchars($ha['virtual_ip']); ?>">
                     <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; margin-bottom: 0;">The floating IP address shared by both nodes that clients connect to.</p>
                 </div>
@@ -94,17 +106,35 @@ $ha = getHaSettings();
             <div id="advanced-vrrp-settings" style="display: none; background: rgba(255,255,255,0.01); border: 1px solid var(--border-color); padding: 20px; border-radius: 12px; margin-bottom: 24px; margin-top: 12px;">
                 <div class="grid-3" style="gap:12px;">
                     <div class="form-group" style="margin-bottom:0;">
-                        <label class="form-label" for="interface">Network NIC</label>
+                        <label class="form-label" for="interface">
+                            Network NIC
+                            <span class="help-tooltip">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                <span class="tooltip-text">The physical ethernet interface (e.g., eth0) that Keepalived will bind the Virtual IP to.</span>
+                            </span>
+                        </label>
                         <input type="text" class="form-control" id="interface" name="interface" placeholder="eth0" value="<?php echo htmlspecialchars($ha['interface']); ?>">
                         <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; margin-bottom: 0;">Physical interface (e.g. <code>eth0</code>).</p>
                     </div>
                     <div class="form-group" style="margin-bottom:0;">
-                        <label class="form-label" for="router_id">VRRP Router ID</label>
+                        <label class="form-label" for="router_id">
+                            VRRP Router ID
+                            <span class="help-tooltip">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                <span class="tooltip-text">The virtual router identifier (1-255). Must be identical on both units to allow clustering communication.</span>
+                            </span>
+                        </label>
                         <input type="number" class="form-control" id="router_id" name="router_id" min="1" max="255" value="<?php echo intval($ha['router_id']); ?>">
                         <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; margin-bottom: 0;">Unique cluster ID (1-255).</p>
                     </div>
                     <div class="form-group" style="margin-bottom:0;">
-                        <label class="form-label" for="auth_pass">VRRP Password</label>
+                        <label class="form-label" for="auth_pass">
+                            VRRP Password
+                            <span class="help-tooltip">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                <span class="tooltip-text">The shared secret string used to authenticate VRRP heartbeats between cluster nodes. Must match on both nodes.</span>
+                            </span>
+                        </label>
                         <input type="password" class="form-control" id="auth_pass" name="auth_pass" value="<?php echo htmlspecialchars($ha['auth_pass']); ?>">
                         <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; margin-bottom: 0;">VRRP authentication secret.</p>
                     </div>
@@ -115,12 +145,24 @@ $ha = getHaSettings();
             
             <div class="grid-2" style="gap:12px;">
                 <div class="form-group">
-                    <label class="form-label" for="partner_ip">Partner IP Address</label>
+                    <label class="form-label" for="partner_ip">
+                        Partner IP Address
+                        <span class="help-tooltip">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                            <span class="tooltip-text">The management IP address of the peer standby load balancer. Used to replicate configurations dynamically.</span>
+                        </span>
+                    </label>
                     <input type="text" class="form-control" id="partner_ip" name="partner_ip" placeholder="192.168.1.102" value="<?php echo htmlspecialchars($ha['partner_ip']); ?>">
                     <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; margin-bottom: 0;">Management IP address of the peer device to replicate config.</p>
                 </div>
                 <div class="form-group">
-                    <label class="form-label" for="api_key">Shared API Key</label>
+                    <label class="form-label" for="api_key">
+                        Shared API Key
+                        <span class="help-tooltip">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                            <span class="tooltip-text">The secret synchronization API key of the partner node, used to authenticate config replication requests.</span>
+                        </span>
+                    </label>
                     <input type="password" class="form-control" id="api_key" name="api_key" placeholder="Enter remote API key" value="<?php echo htmlspecialchars($ha['api_key']); ?>">
                     <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; margin-bottom: 0;">Secret key configured on the partner unit to authorize synching.</p>
                 </div>

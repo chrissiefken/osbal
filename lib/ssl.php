@@ -100,6 +100,35 @@ function compileStunnelConfig($certs = null, $reload = false) {
         $cfg .= "cert = " . $cert['pemPath'] . "\n\n";
     }
 
+    // Write dynamic service SSL configurations
+    require_once $_SERVER['DOCUMENT_ROOT'] . '/lib/services.php';
+    $services = getServices();
+    $manualCerts = getSslCertificates();
+
+    foreach ($services as $id => $service) {
+        if (isset($service['ssl_enabled']) && $service['ssl_enabled']) {
+            $certName = $service['ssl_cert_name'];
+            if (!empty($certName) && isset($manualCerts[$certName])) {
+                $cert = $manualCerts[$certName];
+                
+                $bindIp = empty($service['ip']) ? '0.0.0.0' : $service['ip'];
+                if ($bindIp === '*') {
+                    $bindIp = '0.0.0.0';
+                }
+                
+                $sslPort = empty($service['ssl_port']) ? 443 : $service['ssl_port'];
+                $connectIp = ($bindIp === '0.0.0.0' || $bindIp === '*') ? '127.0.0.1' : $bindIp;
+                $connectPort = empty($service['port']) ? 80 : $service['port'];
+                
+                $cfg .= "[ssl_service_" . preg_replace('/[^a-zA-Z0-9_\-]/', '', $id) . "]\n";
+                $cfg .= "client = no\n";
+                $cfg .= "accept = " . $bindIp . ":" . intval($sslPort) . "\n";
+                $cfg .= "connect = " . $connectIp . ":" . intval($connectPort) . "\n";
+                $cfg .= "cert = " . $cert['pemPath'] . "\n\n";
+            }
+        }
+    }
+
     $stunnelCfgPath = config::getStunnelCfg();
     file_put_contents($stunnelCfgPath, $cfg, LOCK_EX);
 

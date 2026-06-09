@@ -84,36 +84,72 @@ $activeCerts = getSslCertificates();
             <input type="hidden" name="action" value="add_cert">
             
             <div class="form-group">
-                <label class="form-label" for="name">Friendly Name / Domain</label>
+                <label class="form-label" for="name">
+                    Friendly Name / Domain
+                    <span class="help-tooltip">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                        <span class="tooltip-text">A label used to describe this profile (e.g., example.com) to identify it within virtual services.</span>
+                    </span>
+                </label>
                 <input type="text" class="form-control" id="name" name="name" placeholder="example.com" required>
                 <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; margin-bottom: 0;">A descriptive label (e.g. domain name) to identify this certificate profile.</p>
             </div>
 
             <div class="grid-3" style="gap:12px;">
                 <div class="form-group">
-                    <label class="form-label" for="bind_ip">Bind IP</label>
+                    <label class="form-label" for="bind_ip">
+                        Bind IP
+                        <span class="help-tooltip">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                            <span class="tooltip-text">The IP address Stunnel will listen on to accept TLS connections. Use "*" for all interfaces.</span>
+                        </span>
+                    </label>
                     <input type="text" class="form-control" id="bind_ip" name="bind_ip" value="*" required>
                     <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; margin-bottom: 0;">Listening IP. Use <code>*</code> for all interfaces.</p>
                 </div>
                 <div class="form-group">
-                    <label class="form-label" for="bind_port">Bind Port</label>
+                    <label class="form-label" for="bind_port">
+                        Bind Port
+                        <span class="help-tooltip">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                            <span class="tooltip-text">The public port Stunnel listens on to receive SSL/TLS handshakes (usually port 443).</span>
+                        </span>
+                    </label>
                     <input type="number" class="form-control" id="bind_port" name="bind_port" value="443" min="1" max="65535" required>
                     <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; margin-bottom: 0;">Public HTTPS/TLS port (typically <code>443</code>).</p>
                 </div>
                 <div class="form-group">
-                    <label class="form-label" for="target_port">Target Port</label>
+                    <label class="form-label" for="target_port">
+                        Target Port
+                        <span class="help-tooltip">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                            <span class="tooltip-text">The local HAProxy HTTP port that Stunnel routes decrypted traffic to (e.g. port 80).</span>
+                        </span>
+                    </label>
                     <input type="number" class="form-control" id="target_port" name="target_port" placeholder="80" min="1" max="65535" required>
                     <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; margin-bottom: 0;">Local HAProxy HTTP port to forward decrypted traffic (e.g. <code>80</code>).</p>
                 </div>
             </div>
             
             <div class="form-group">
-                <label class="form-label" for="cert_pem">Certificate PEM</label>
+                <label class="form-label" for="cert_pem">
+                    Certificate PEM
+                    <span class="help-tooltip">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                        <span class="tooltip-text">Paste the public SSL certificate in PEM format (starts with -----BEGIN CERTIFICATE-----).</span>
+                    </span>
+                </label>
                 <textarea class="form-control" id="cert_pem" name="cert_pem" placeholder="-----BEGIN CERTIFICATE-----&#10;..." style="font-family:monospace; font-size:0.75rem; height:100px; resize:vertical;" required></textarea>
             </div>
 
             <div class="form-group">
-                <label class="form-label" for="key_pem">Private Key PEM</label>
+                <label class="form-label" for="key_pem">
+                    Private Key PEM
+                    <span class="help-tooltip">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                        <span class="tooltip-text">Paste the private key in PEM format (starts with -----BEGIN PRIVATE KEY-----). Never share this key.</span>
+                    </span>
+                </label>
                 <textarea class="form-control" id="key_pem" name="key_pem" placeholder="-----BEGIN PRIVATE KEY-----&#10;..." style="font-family:monospace; font-size:0.75rem; height:100px; resize:vertical;" required></textarea>
             </div>
 

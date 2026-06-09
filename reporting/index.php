@@ -123,22 +123,46 @@ $area_coords .= $chart_width . "," . $chart_height;
 <!-- KPI Cards -->
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 30px;">
     <div class="card-glass" style="padding: 20px;">
-        <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em; margin-bottom: 10px;">Active Frontends</div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em; margin-bottom: 10px;">
+            Active Frontends
+            <span class="help-tooltip">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                <span class="tooltip-text">Listener sockets configured in HAProxy that accept client requests on a designated IP and port.</span>
+            </span>
+        </div>
         <div style="font-size: 2.2rem; font-weight: 700; color: var(--accent);"><?php echo $service_count; ?></div>
     </div>
     
     <div class="card-glass" style="padding: 20px;">
-        <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em; margin-bottom: 10px;">Backend Nodes Pool</div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em; margin-bottom: 10px;">
+            Backend Nodes Pool
+            <span class="help-tooltip">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                <span class="tooltip-text">Target destination servers (e.g. web servers) grouped into pools to handle client load.</span>
+            </span>
+        </div>
         <div style="font-size: 2.2rem; font-weight: 700; color: var(--success);"><?php echo $total_servers; ?></div>
     </div>
 
     <div class="card-glass" style="padding: 20px;">
-        <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em; margin-bottom: 10px;">Throughput</div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em; margin-bottom: 10px;">
+            Throughput
+            <span class="help-tooltip">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                <span class="tooltip-text">The volume of network data processed by the load balancer, calculated dynamically in Megabits per second (Mb/s).</span>
+            </span>
+        </div>
         <div style="font-size: 2.2rem; font-weight: 700; color: #fff;"><?php echo $throughputVal; ?> <span style="font-size: 1.1rem; font-weight:500; color: var(--text-muted);">Mb/s</span></div>
     </div>
 
     <div class="card-glass" style="padding: 20px;">
-        <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em; margin-bottom: 10px;">HA Host Status</div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em; margin-bottom: 10px;">
+            HA Host Status
+            <span class="help-tooltip">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                <span class="tooltip-text">Keepalived host failover state. MASTER indicates this host currently holds the VIP; STANDBY indicates it is waiting.</span>
+            </span>
+        </div>
         <div style="font-size: 2.2rem; font-weight: 700; color: <?php echo $haBadgeColor; ?>;">
             <span style="display:inline-flex; align-items:center; gap: 8px;">
                 <span style="width:14px; height:14px; border-radius:50%; background:<?php echo $haDotColor; ?>; box-shadow: 0 0 10px <?php echo $haDotShadow; ?>;"></span>
