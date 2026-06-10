@@ -78,10 +78,14 @@ sudo chown -R www-data:www-data /var/www/html/
 #### Step 3: Configure File Permissions & Sudo Access
 Allow the OSBal PHP backend (`www-data` user) to edit configuration files and reload/restart services without requiring a root password.
 
-1. **Set file ownership**: Create config directories and assign permissions:
+1. **Set file ownership**: Create config directories, enable Stunnel4, and assign permissions:
    ```bash
    sudo mkdir -p /usr/local/osbal/config /etc/stunnel/certs
    sudo touch /etc/haproxy/haproxy.cfg /etc/keepalived/keepalived.conf /etc/stunnel/stunnel.conf
+   
+   # Enable Stunnel4 daemon startup (Debian/Ubuntu specific)
+   sudo sed -i 's/ENABLED=0/ENABLED=1/g' /etc/default/stunnel4 || true
+   
    sudo chown -R www-data:www-data /usr/local/osbal/config /etc/stunnel/certs /etc/haproxy/haproxy.cfg /etc/keepalived/keepalived.conf /etc/stunnel/stunnel.conf
    ```
 

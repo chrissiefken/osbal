@@ -95,6 +95,15 @@ echo -e "\n\033[1;33m[3/6] Initializing configuration files & permissions...\033
 mkdir -p /usr/local/osbal/config
 mkdir -p /etc/stunnel/certs
 
+# Enable Stunnel daemon startup in Debian/Ubuntu config
+if [ -f /etc/default/stunnel4 ]; then
+  if grep -q "ENABLED=" /etc/default/stunnel4; then
+    sed -i 's/ENABLED=0/ENABLED=1/g' /etc/default/stunnel4
+  else
+    echo "ENABLED=1" >> /etc/default/stunnel4
+  fi
+fi
+
 # Ensure core files exist before assigning permissions
 touch /etc/haproxy/haproxy.cfg
 touch /etc/keepalived/keepalived.conf
@@ -124,10 +133,20 @@ echo -e "\n\033[1;33m[5/6] Starting services...\033[0m"
 systemctl restart apache2
 systemctl enable apache2
 
+# Enable and start daemon services
+systemctl enable haproxy || true
+systemctl enable keepalived || true
+systemctl enable stunnel4 || true
+
 if [ "$IS_UPGRADE" -eq 1 ]; then
   echo "Hot-reloading active load-balancer services..."
   systemctl reload haproxy || true
   systemctl reload keepalived || true
+  systemctl restart stunnel4 || true
+else
+  # On first-time install, start them up to initialize active states
+  systemctl restart haproxy || true
+  systemctl restart keepalived || true
   systemctl restart stunnel4 || true
 fi
 
