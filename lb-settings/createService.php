@@ -15,7 +15,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $waf_enabled = isset($_POST['waf_enabled']) ? true : false;
     $block_sqli = isset($_POST['block_sqli']) ? true : false;
     $block_xss = isset($_POST['block_xss']) ? true : false;
-    $rate_limit = isset($_POST['rate_limit']) ? true : false;
+    $rate_limit = false;
+    $rate_limit_type = isset($_POST['rate_limit_type']) ? $_POST['rate_limit_type'] : 'deny';
+    $rate_limit_max = 100;
+    $rate_limit_delay = isset($_POST['rate_limit_delay']) ? intval($_POST['rate_limit_delay']) : 5;
     $ssl_enabled = isset($_POST['ssl_enabled']) ? true : false;
     $ssl_port = isset($_POST['ssl_port']) ? intval($_POST['ssl_port']) : 443;
     $ssl_cert_name = isset($_POST['ssl_cert_name']) ? $_POST['ssl_cert_name'] : '';
@@ -24,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Please fill out the Service Name and valid Bind Port.';
     } else {
         // Create the service
-        $id = createService($name, $ip, $port, $mode, $balance, $waf_enabled, $block_sqli, $block_xss, $rate_limit, $ssl_enabled, $ssl_port, $ssl_cert_name);
+        $id = createService($name, $ip, $port, $mode, $balance, $waf_enabled, $block_sqli, $block_xss, $rate_limit, $ssl_enabled, $ssl_port, $ssl_cert_name, $rate_limit_type, $rate_limit_max, $rate_limit_delay);
         if ($id) {
             header('Location: /lb-settings/index.php');
             exit;
@@ -151,16 +154,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
 
         <div id="waf-settings" style="display:none; background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); padding: 20px; border-radius: 12px; margin-bottom: 24px; margin-top: 12px;">
-            <div class="form-group" style="margin-bottom:0;">
-                <label class="radio-label" style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
-                    <input type="checkbox" name="block_sqli" value="1" checked style="width:16px; height:16px; margin:0;"> Block SQL Injection (SQLi) patterns
-                </label>
-                <label class="radio-label" style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
-                    <input type="checkbox" name="block_xss" value="1" checked style="width:16px; height:16px; margin:0;"> Block Cross-Site Scripting (XSS) vectors
-                </label>
-                <label class="radio-label" style="display:flex; align-items:center; gap:8px; margin-bottom:0;">
-                    <input type="checkbox" name="rate_limit" value="1" checked style="width:16px; height:16px; margin:0;"> Rate Limiting (max 100 requests per 10s per IP)
-                </label>
+            <div class="form-group" style="margin-bottom:0; display:flex; flex-direction:column; gap:16px;">
+                <div style="display:flex; flex-direction:column; gap:12px;">
+                    <label class="radio-label" style="display:flex; align-items:center; gap:8px; margin:0;">
+                        <input type="checkbox" name="block_sqli" value="1" checked style="width:16px; height:16px; margin:0;"> Block SQL Injection (SQLi) patterns
+                    </label>
+                    <label class="radio-label" style="display:flex; align-items:center; gap:8px; margin:0;">
+                        <input type="checkbox" name="block_xss" value="1" checked style="width:16px; height:16px; margin:0;"> Block Cross-Site Scripting (XSS) vectors
+                    </label>
+                </div>
+                
+                <div id="waf-mitigation-details" style="border-top: 1px solid var(--border-color); padding-top: 16px; display: flex; flex-direction: column; gap: 16px;">
+                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap:16px;">
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="form-label" style="font-size:0.75rem;" for="rate_limit_type">
+                                Mitigation Action
+                                <span class="help-tooltip">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                    <span class="tooltip-text">Deny returns an immediate HTTP 403 Forbidden. Tarpit delays the response to slow down the attacker.</span>
+                                </span>
+                            </label>
+                            <select class="form-control" name="rate_limit_type" id="rate_limit_type" style="padding: 10px; font-size: 0.85rem;">
+                                <option value="deny">Deny Access (Return HTTP 403)</option>
+                                <option value="tarpit">Tarpit (Slow Down Request)</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;" id="tarpit-delay-group">
+                            <label class="form-label" style="font-size:0.75rem;" for="rate_limit_delay">
+                                Tarpit Delay (seconds)
+                                <span class="help-tooltip">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                    <span class="tooltip-text">The number of seconds HAProxy holds the client connection open, consuming their resources to slow down brute force attacks.</span>
+                                </span>
+                            </label>
+                            <input type="number" class="form-control" name="rate_limit_delay" id="rate_limit_delay" value="5" min="1" max="60" style="padding: 10px; font-size: 0.85rem;">
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -217,6 +247,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $('#waf-settings').slideDown();
                 } else {
                     $('#waf-settings').slideUp();
+                }
+            });
+
+            // WAF Mitigation Toggles
+            if ($('#rate_limit_type').val() !== 'tarpit') {
+                $('#tarpit-delay-group').hide();
+            }
+
+            $('#rate_limit_type').change(function() {
+                if ($(this).val() === 'tarpit') {
+                    $('#tarpit-delay-group').slideDown();
+                } else {
+                    $('#tarpit-delay-group').slideUp();
                 }
             });
 

@@ -29,12 +29,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $waf_enabled = isset($_POST['waf_enabled']) ? true : false;
         $block_sqli = isset($_POST['block_sqli']) ? true : false;
         $block_xss = isset($_POST['block_xss']) ? true : false;
-        $rate_limit = isset($_POST['rate_limit']) ? true : false;
+        $rate_limit = false;
+        $rate_limit_type = isset($_POST['rate_limit_type']) ? $_POST['rate_limit_type'] : 'deny';
+        $rate_limit_max = 100;
+        $rate_limit_delay = isset($_POST['rate_limit_delay']) ? intval($_POST['rate_limit_delay']) : 5;
         
         $services = getServices();
         if (isset($services[$serviceId])) {
             $srv = $services[$serviceId];
-            if (updateService($serviceId, $srv['name'], $srv['ip'], $srv['port'], $srv['mode'], $srv['balance'], $waf_enabled, $block_sqli, $block_xss, $rate_limit)) {
+            if (updateService($serviceId, $srv['name'], $srv['ip'], $srv['port'], $srv['mode'], $srv['balance'], $waf_enabled, $block_sqli, $block_xss, $rate_limit, null, null, null, $rate_limit_type, $rate_limit_max, $rate_limit_delay)) {
                 $feedback = '<div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); color: var(--success); padding: 12px; border-radius: 10px; margin-bottom: 20px; font-size: 0.9rem;">WAF settings updated successfully.</div>';
             } else {
                 $feedback = '<div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: var(--danger); padding: 12px; border-radius: 10px; margin-bottom: 20px; font-size: 0.9rem;">Failed to update WAF settings.</div>';
@@ -274,28 +277,56 @@ $services = getServices();
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
                     WAF Shield Settings
                 </h4>
-                <form method="POST" action="index.php" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+                <form method="POST" action="index.php" style="display:flex; flex-direction:column; gap:16px;">
                     <input type="hidden" name="action" value="update_waf_settings">
                     <input type="hidden" name="service_id" value="<?php echo $id; ?>">
                     
-                    <div style="display:flex; gap: 20px; flex-wrap:wrap;">
-                        <label class="radio-label" style="font-size:0.85rem; display:flex; align-items:center; gap:6px;">
-                            <input type="checkbox" name="waf_enabled" value="1" <?php echo (isset($service['waf_enabled']) && $service['waf_enabled']) ? 'checked' : ''; ?> style="width:16px; height:16px;"> Enable WAF
-                        </label>
-                        <label class="radio-label" style="font-size:0.85rem; display:flex; align-items:center; gap:6px;">
-                            <input type="checkbox" name="block_sqli" value="1" <?php echo (isset($service['block_sqli']) && $service['block_sqli']) ? 'checked' : ''; ?> style="width:16px; height:16px;"> Block SQLi
-                        </label>
-                        <label class="radio-label" style="font-size:0.85rem; display:flex; align-items:center; gap:6px;">
-                            <input type="checkbox" name="block_xss" value="1" <?php echo (isset($service['block_xss']) && $service['block_xss']) ? 'checked' : ''; ?> style="width:16px; height:16px;"> Block XSS
-                        </label>
-                        <label class="radio-label" style="font-size:0.85rem; display:flex; align-items:center; gap:6px;">
-                            <input type="checkbox" name="rate_limit" value="1" <?php echo (isset($service['rate_limit']) && $service['rate_limit']) ? 'checked' : ''; ?> style="width:16px; height:16px;"> Rate Limiting
-                        </label>
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+                        <div style="display:flex; gap: 20px; flex-wrap:wrap;">
+                            <label class="radio-label" style="font-size:0.85rem; display:flex; align-items:center; gap:6px;">
+                                <input type="checkbox" name="waf_enabled" class="waf-enabled-toggle" data-service-id="<?php echo $id; ?>" value="1" <?php echo (isset($service['waf_enabled']) && $service['waf_enabled']) ? 'checked' : ''; ?> style="width:16px; height:16px;"> Enable WAF
+                            </label>
+                            <label class="radio-label" style="font-size:0.85rem; display:flex; align-items:center; gap:6px;">
+                                <input type="checkbox" name="block_sqli" value="1" <?php echo (isset($service['block_sqli']) && $service['block_sqli']) ? 'checked' : ''; ?> style="width:16px; height:16px;"> Block SQLi
+                            </label>
+                            <label class="radio-label" style="font-size:0.85rem; display:flex; align-items:center; gap:6px;">
+                                <input type="checkbox" name="block_xss" value="1" <?php echo (isset($service['block_xss']) && $service['block_xss']) ? 'checked' : ''; ?> style="width:16px; height:16px;"> Block XSS
+                            </label>
+                        </div>
+                        
+                        <button class="btn btn-secondary" type="submit" style="padding: 8px 16px; font-size: 0.85rem; font-weight:600;">
+                            Update WAF Rules
+                        </button>
                     </div>
-                    
-                    <button class="btn btn-secondary" type="submit" style="padding: 8px 16px; font-size: 0.85rem; font-weight:600;">
-                        Update WAF Rules
-                    </button>
+
+                    <!-- WAF mitigation details block -->
+                    <div class="waf-mitigation-details-block" id="waf-mitigation-details-<?php echo $id; ?>" style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); padding: 16px; border-radius: 8px; margin-top: 8px; display: flex; flex-direction: column; gap: 12px;">
+                        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap:16px;">
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label class="form-label" style="font-size:0.75rem;" for="rate_limit_type_<?php echo $id; ?>">
+                                    Mitigation Action
+                                    <span class="help-tooltip">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                        <span class="tooltip-text">Deny returns an immediate HTTP 403 Forbidden. Tarpit delays the response to slow down the attacker.</span>
+                                    </span>
+                                </label>
+                                <select class="form-control rate-limit-type-select" name="rate_limit_type" id="rate_limit_type_<?php echo $id; ?>" data-service-id="<?php echo $id; ?>" style="padding: 8px; font-size: 0.85rem; height: 36px;">
+                                    <option value="deny" <?php echo (isset($service['rate_limit_type']) && $service['rate_limit_type'] === 'deny') ? 'selected' : ''; ?>>Deny Access (Return HTTP 403)</option>
+                                    <option value="tarpit" <?php echo (isset($service['rate_limit_type']) && $service['rate_limit_type'] === 'tarpit') ? 'selected' : ''; ?>>Tarpit (Slow Down Request)</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="margin-bottom:0;" id="tarpit-delay-group-<?php echo $id; ?>">
+                                <label class="form-label" style="font-size:0.75rem;" for="rate_limit_delay_<?php echo $id; ?>">
+                                    Tarpit Delay (seconds)
+                                    <span class="help-tooltip">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                        <span class="tooltip-text">The number of seconds HAProxy holds the client connection open, consuming their resources to slow down brute force attacks.</span>
+                                    </span>
+                                </label>
+                                <input type="number" class="form-control" name="rate_limit_delay" id="rate_limit_delay_<?php echo $id; ?>" value="<?php echo isset($service['rate_limit_delay']) ? intval($service['rate_limit_delay']) : 5; ?>" min="1" max="60" style="padding: 8px; font-size: 0.85rem; height: 36px;">
+                            </div>
+                        </div>
+                    </div>
                 </form>
             </div>
 
@@ -383,6 +414,64 @@ $services = getServices();
         </div>
     </form>
 </div>
+
+<script>
+$(function() {
+    // Function to update visibility of WAF mitigation details and tarpit delay group for a specific service ID
+    function updateWafMitigationVisibility(serviceId, immediate) {
+        var wafEnabled = $('.waf-enabled-toggle[data-service-id="' + serviceId + '"]').is(':checked');
+        var detailsBlock = $('#waf-mitigation-details-' + serviceId);
+        
+        if (wafEnabled) {
+            if (immediate) {
+                detailsBlock.show();
+            } else {
+                detailsBlock.slideDown();
+            }
+        } else {
+            if (immediate) {
+                detailsBlock.hide();
+            } else {
+                detailsBlock.slideUp();
+            }
+        }
+
+        var rateLimitType = $('#rate_limit_type_' + serviceId).val();
+        var tarpitGroup = $('#tarpit-delay-group-' + serviceId);
+        if (rateLimitType === 'tarpit') {
+            if (immediate) {
+                tarpitGroup.show();
+            } else {
+                tarpitGroup.slideDown();
+            }
+        } else {
+            if (immediate) {
+                tarpitGroup.hide();
+            } else {
+                tarpitGroup.slideUp();
+            }
+        }
+    }
+
+    // Initial check for all service cards on page load
+    $('.waf-enabled-toggle').each(function() {
+        var serviceId = $(this).data('service-id');
+        updateWafMitigationVisibility(serviceId, true);
+    });
+
+    // Listeners for WAF checkbox change
+    $('.waf-enabled-toggle').change(function() {
+        var serviceId = $(this).data('service-id');
+        updateWafMitigationVisibility(serviceId, false);
+    });
+
+    // Listeners for Mitigation Action dropdown change
+    $('.rate-limit-type-select').change(function() {
+        var serviceId = $(this).data('service-id');
+        updateWafMitigationVisibility(serviceId, false);
+    });
+});
+</script>
 
 <?php
 include $_SERVER['DOCUMENT_ROOT'] . '/lib/footer.php';

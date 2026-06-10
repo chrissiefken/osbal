@@ -41,7 +41,7 @@ function saveServices($services) {
     setPendingChanges();
 }
 
-function createService($name, $ip, $port, $mode = 'http', $balance = 'roundrobin', $waf_enabled = false, $block_sqli = false, $block_xss = false, $rate_limit = false, $ssl_enabled = false, $ssl_port = 443, $ssl_cert_name = '') {
+function createService($name, $ip, $port, $mode = 'http', $balance = 'roundrobin', $waf_enabled = false, $block_sqli = false, $block_xss = false, $rate_limit = false, $ssl_enabled = false, $ssl_port = 443, $ssl_cert_name = '', $rate_limit_type = 'deny', $rate_limit_max = 100, $rate_limit_delay = 5) {
     $services = getServices();
     $id = uniqid();
     $services[$id] = array(
@@ -55,6 +55,9 @@ function createService($name, $ip, $port, $mode = 'http', $balance = 'roundrobin
         'block_sqli' => (bool)$block_sqli,
         'block_xss' => (bool)$block_xss,
         'rate_limit' => (bool)$rate_limit,
+        'rate_limit_type' => $rate_limit_type,
+        'rate_limit_max' => intval($rate_limit_max),
+        'rate_limit_delay' => intval($rate_limit_delay),
         'ssl_enabled' => (bool)$ssl_enabled,
         'ssl_port' => intval($ssl_port),
         'ssl_cert_name' => $ssl_cert_name,
@@ -64,7 +67,7 @@ function createService($name, $ip, $port, $mode = 'http', $balance = 'roundrobin
     return $id;
 }
 
-function updateService($id, $name, $ip, $port, $mode, $balance, $waf_enabled = false, $block_sqli = false, $block_xss = false, $rate_limit = false, $ssl_enabled = null, $ssl_port = null, $ssl_cert_name = null) {
+function updateService($id, $name, $ip, $port, $mode, $balance, $waf_enabled = false, $block_sqli = false, $block_xss = false, $rate_limit = false, $ssl_enabled = null, $ssl_port = null, $ssl_cert_name = null, $rate_limit_type = null, $rate_limit_max = null, $rate_limit_delay = null) {
     $services = getServices();
     if (isset($services[$id])) {
         $services[$id]['name'] = $name;
@@ -76,6 +79,24 @@ function updateService($id, $name, $ip, $port, $mode, $balance, $waf_enabled = f
         $services[$id]['block_sqli'] = (bool)$block_sqli;
         $services[$id]['block_xss'] = (bool)$block_xss;
         $services[$id]['rate_limit'] = (bool)$rate_limit;
+        
+        if ($rate_limit_type !== null) {
+            $services[$id]['rate_limit_type'] = $rate_limit_type;
+        } elseif (!isset($services[$id]['rate_limit_type'])) {
+            $services[$id]['rate_limit_type'] = 'deny';
+        }
+        
+        if ($rate_limit_max !== null) {
+            $services[$id]['rate_limit_max'] = intval($rate_limit_max);
+        } elseif (!isset($services[$id]['rate_limit_max'])) {
+            $services[$id]['rate_limit_max'] = 100;
+        }
+        
+        if ($rate_limit_delay !== null) {
+            $services[$id]['rate_limit_delay'] = intval($rate_limit_delay);
+        } elseif (!isset($services[$id]['rate_limit_delay'])) {
+            $services[$id]['rate_limit_delay'] = 5;
+        }
         
         if ($ssl_enabled !== null) {
             $services[$id]['ssl_enabled'] = (bool)$ssl_enabled;
@@ -186,17 +207,24 @@ function compileHaproxyConfig($services = null, $reload = false) {
             $cfg .= "    acl is_blacklisted src -f " . $blacklistPath . "\n";
             $cfg .= "    http-request deny deny_status 403 if is_blacklisted\n";
             
+            $waf_type = isset($service['rate_limit_type']) ? $service['rate_limit_type'] : 'deny';
+            $waf_delay = isset($service['rate_limit_delay']) ? intval($service['rate_limit_delay']) : 5;
+            
             if (isset($service['block_sqli']) && $service['block_sqli']) {
                 $cfg .= "    acl is_sqli query -m reg -i (select|insert|update|delete|drop|union)\n";
-                $cfg .= "    http-request deny deny_status 403 if is_sqli\n";
+                if ($waf_type === 'tarpit') {
+                    $cfg .= "    http-request tarpit delay " . $waf_delay . "s if is_sqli\n";
+                } else {
+                    $cfg .= "    http-request deny deny_status 403 if is_sqli\n";
+                }
             }
             if (isset($service['block_xss']) && $service['block_xss']) {
                 $cfg .= "    acl is_xss query -m reg -i (<script|javascript:|onerror|onload|alert\\()\n";
-                $cfg .= "    http-request deny deny_status 403 if is_xss\n";
-            }
-            if (isset($service['rate_limit']) && $service['rate_limit']) {
-                $cfg .= "    http-request track-sc0 src table " . $backName . "\n";
-                $cfg .= "    http-request deny deny_status 429 if { sc_http_req_rate(0) gt 100 }\n";
+                if ($waf_type === 'tarpit') {
+                    $cfg .= "    http-request tarpit delay " . $waf_delay . "s if is_xss\n";
+                } else {
+                    $cfg .= "    http-request deny deny_status 403 if is_xss\n";
+                }
             }
         }
         
@@ -205,12 +233,6 @@ function compileHaproxyConfig($services = null, $reload = false) {
         // Backend configuration
         $cfg .= "backend " . $backName . "\n";
         $cfg .= "    mode " . ($service['mode'] === 'tcp' ? 'tcp' : 'http') . "\n";
-        
-        // Dynamic Rate Limiting Stick Table
-        if ($waf && isset($service['rate_limit']) && $service['rate_limit']) {
-            $cfg .= "    # Rate limiting table (max 100 requests per 10s per IP)\n";
-            $cfg .= "    stick-table type ip size 100k expire 10s store http_req_rate(10s)\n";
-        }
         
         // Balancing Strategy
         $strategy = $service['balance'];
