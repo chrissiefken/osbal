@@ -860,7 +860,7 @@
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
                         Optional WAF Shield
                     </h3>
-                    <p>Toggle native SQL Injection (SQLi) query blocking, Cross-Site Scripting (XSS) filters, IP rate-limiting, and configure global IP Access Blacklists. Compiled directly into HAProxy ACL rules.</p>
+                    <p>Toggle native SQL Injection (SQLi) query blocking, Cross-Site Scripting (XSS) filters, automated WAF request mitigation (Deny vs. Tarpit delay), and configure global IP Access Blacklists. Compiled directly into HAProxy ACL rules.</p>
                 </div>
                 <div class="card-glass">
                     <h3 style="color: var(--accent); display:flex; align-items:center; gap:8px;">
@@ -962,7 +962,10 @@
         "waf_enabled": true,
         "block_sqli": true,
         "block_xss": true,
-        "rate_limit": true,
+        "rate_limit": false,
+        "rate_limit_type": "tarpit",
+        "rate_limit_max": 100,
+        "rate_limit_delay": 5,
         "servers": {
           "node_unique_id": {
             "id": "node_unique_id",

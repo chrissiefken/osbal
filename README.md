@@ -105,10 +105,11 @@ Point your web browser to the server's IP address (e.g. `http://192.168.1.100/`)
 
 ### Using the Web Application Firewall (WAF)
 1. **Enable Shields**: On the **Create Service** or **Load Balancer** page, click the WAF checkbox.
-2. **Select Protections**:
-   * **Block SQLi**: Rejects requests containing injection keywords (`UNION`, `SELECT`, `DROP`, etc.).
-   * **Block XSS**: Blocks requests with HTML script tags and javascript handlers (`<script>`, `onerror`, `onload`).
-   * **Rate Limiting**: Denies client IPs exceeding 100 requests per 10 seconds with a `429 Too Many Requests` code.
+2. **Select Protections & Mitigation Action**:
+   * **Block SQLi**: Filters requests containing SQL injection keywords (`UNION`, `SELECT`, `DROP`, etc.).
+   * **Block XSS**: Filters requests containing HTML script tags or JavaScript event handlers (`<script>`, `onerror`, `onload`, etc.).
+   * **Mitigation Action**: Choose how to handle detected violations. Select **Deny Access** (instantly return HTTP 403 Forbidden) or **Tarpit** (delay the connection response to tie up client resources).
+   * **Tarpit Delay**: Set how long (1-60s) HAProxy holds the connection open when a violation occurs, slowing down brute-force scanner scripts.
 3. **IP Blacklist**: Add malicious IP addresses line-by-line to the **Global IP Access Blacklist** form at the bottom of the load balancer settings page to block them globally.
 
 ### Exploring the Real-Time Monitor
