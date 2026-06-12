@@ -178,43 +178,43 @@ $area_coords .= $chart_width . "," . $chart_height;
 
 <!-- KPI Cards -->
 <div class="kpi-grid">
-    <div class="card-glass" style="padding: 20px;">
-        <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em; margin-bottom: 10px;">
-            Active Frontends
-            <span class="help-tooltip">
+    <div class="card-glass" style="padding: 20px; display: flex; flex-direction: column; justify-content: space-between;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 6px; font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em; margin-bottom: 12px; min-height: 36px;">
+            <span>Active Frontends</span>
+            <span class="help-tooltip" style="margin-top: 2px; flex-shrink: 0;">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
                 <span class="tooltip-text">Listener sockets configured in HAProxy that accept client requests on a designated IP and port.</span>
             </span>
         </div>
-        <div style="font-size: 2.2rem; font-weight: 700; color: var(--accent);"><?php echo $service_count; ?></div>
+        <div style="font-size: 2.2rem; font-weight: 700; color: var(--accent); line-height: 1.1;"><?php echo $service_count; ?></div>
     </div>
     
-    <div class="card-glass" style="padding: 20px;">
-        <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em; margin-bottom: 10px;">
-            Backend Nodes Pool
-            <span class="help-tooltip">
+    <div class="card-glass" style="padding: 20px; display: flex; flex-direction: column; justify-content: space-between;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 6px; font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em; margin-bottom: 12px; min-height: 36px;">
+            <span>Backend Nodes Pool</span>
+            <span class="help-tooltip" style="margin-top: 2px; flex-shrink: 0;">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
                 <span class="tooltip-text">Target destination servers (e.g. web servers) grouped into pools to handle client load.</span>
             </span>
         </div>
-        <div style="font-size: 2.2rem; font-weight: 700; color: var(--success);"><?php echo $total_servers; ?></div>
+        <div style="font-size: 2.2rem; font-weight: 700; color: var(--success); line-height: 1.1;"><?php echo $total_servers; ?></div>
     </div>
-
-    <div class="card-glass" style="padding: 20px;">
-        <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em; margin-bottom: 10px;">
-            Throughput
-            <span class="help-tooltip">
+ 
+    <div class="card-glass" style="padding: 20px; display: flex; flex-direction: column; justify-content: space-between;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 6px; font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em; margin-bottom: 12px; min-height: 36px;">
+            <span>Throughput</span>
+            <span class="help-tooltip" style="margin-top: 2px; flex-shrink: 0;">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
                 <span class="tooltip-text">The volume of network data processed by the load balancer, calculated dynamically in Megabits per second (Mb/s).</span>
             </span>
         </div>
-        <div style="font-size: 2.2rem; font-weight: 700; color: #fff;"><?php echo $throughputVal; ?> <span style="font-size: 1.1rem; font-weight:500; color: var(--text-muted);">Mb/s</span></div>
+        <div style="font-size: 2.2rem; font-weight: 700; color: #fff; line-height: 1.1;"><?php echo $throughputVal; ?> <span style="font-size: 1.1rem; font-weight:500; color: var(--text-muted);">Mb/s</span></div>
     </div>
-
-    <div class="card-glass" style="padding: 20px;">
-        <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em; margin-bottom: 10px;">
-            HA Host Status
-            <span class="help-tooltip">
+ 
+    <div class="card-glass" style="padding: 20px; display: flex; flex-direction: column; justify-content: space-between;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 6px; font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em; margin-bottom: 12px; min-height: 36px;">
+            <span>HA Host Status</span>
+            <span class="help-tooltip" style="margin-top: 2px; flex-shrink: 0;">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
                 <span class="tooltip-text">Keepalived host failover state. MASTER indicates this host currently holds the VIP; STANDBY indicates it is waiting.</span>
             </span>
@@ -237,7 +237,7 @@ $area_coords .= $chart_width . "," . $chart_height;
             </div>
         </div>
     </div>
-
+ 
     <?php
     $capacity = ApplianceSystem::getApplianceCapacity();
     $gaugeColor = 'var(--success)';
@@ -248,20 +248,23 @@ $area_coords .= $chart_width . "," . $chart_height;
     }
     ?>
     <div class="card-glass" style="padding: 20px; display:flex; flex-direction:column; justify-content:space-between;">
-        <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em; margin-bottom: 10px;">
-            Appliance Capacity
-            <span class="help-tooltip">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 6px; font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em; margin-bottom: 12px; min-height: 36px;">
+            <span>Appliance Capacity</span>
+            <span class="help-tooltip" style="margin-top: 2px; flex-shrink: 0;">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
                 <span class="tooltip-text">Overall system load calculated as the highest utilization between CPU cores, connection limit, and network interface capacity.</span>
             </span>
         </div>
         <div>
-            <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px;">
-                <div style="font-size: 2.2rem; font-weight: 700; color: #fff;"><?php echo number_format($capacity['utilization'], 1); ?><span style="font-size:1.1rem; color:var(--text-muted);">%</span></div>
-                <div style="font-size:0.7rem; color:var(--text-muted); font-weight:500;">Limit: <?php echo htmlspecialchars($capacity['bottleneck']); ?></div>
+            <div style="font-size: 2.2rem; font-weight: 700; color: #fff; line-height: 1.1; margin-bottom: 6px;">
+                <?php echo number_format($capacity['utilization'], 1); ?><span style="font-size:1.1rem; color:var(--text-muted);">%</span>
             </div>
-            <div style="width:100%; height:6px; background:rgba(255,255,255,0.05); border-radius:3px; overflow:hidden;">
+            <div style="width:100%; height:6px; background:rgba(255,255,255,0.05); border-radius:3px; overflow:hidden; margin-bottom: 6px;">
                 <div style="width:<?php echo $capacity['utilization']; ?>%; height:100%; background:<?php echo $gaugeColor; ?>; transition: width 0.5s ease-out;"></div>
+            </div>
+            <div style="font-size:0.7rem; color:var(--text-muted); font-weight:500; display:flex; justify-content:space-between; align-items:center;">
+                <span>Utilization</span>
+                <span>Limit: <?php echo htmlspecialchars($capacity['bottleneck']); ?></span>
             </div>
         </div>
     </div>
