@@ -180,6 +180,34 @@ $area_coords .= $chart_width . "," . $chart_height;
             </span>
         </div>
     </div>
+
+    <?php
+    $capacity = ApplianceSystem::getApplianceCapacity();
+    $gaugeColor = 'var(--success)';
+    if ($capacity['utilization'] >= 90) {
+        $gaugeColor = 'var(--danger)';
+    } elseif ($capacity['utilization'] >= 70) {
+        $gaugeColor = 'var(--warning)';
+    }
+    ?>
+    <div class="card-glass" style="padding: 20px; display:flex; flex-direction:column; justify-content:space-between;">
+        <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em; margin-bottom: 10px;">
+            Appliance Capacity
+            <span class="help-tooltip">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                <span class="tooltip-text">Overall system load calculated as the highest utilization between CPU cores, connection limit, and network interface capacity.</span>
+            </span>
+        </div>
+        <div>
+            <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px;">
+                <div style="font-size: 2.2rem; font-weight: 700; color: #fff;"><?php echo number_format($capacity['utilization'], 1); ?><span style="font-size:1.1rem; color:var(--text-muted);">%</span></div>
+                <div style="font-size:0.7rem; color:var(--text-muted); font-weight:500;">Limit: <?php echo htmlspecialchars($capacity['bottleneck']); ?></div>
+            </div>
+            <div style="width:100%; height:6px; background:rgba(255,255,255,0.05); border-radius:3px; overflow:hidden;">
+                <div style="width:<?php echo $capacity['utilization']; ?>%; height:100%; background:<?php echo $gaugeColor; ?>; transition: width 0.5s ease-out;"></div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Connections Chart -->

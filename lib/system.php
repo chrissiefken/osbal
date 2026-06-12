@@ -257,5 +257,78 @@ class ApplianceSystem {
         @file_put_contents($cacheFile, json_encode($result), LOCK_EX);
         return $result;
     }
+
+    public static function getApplianceCapacity() {
+        $isSandbox = self::isSandbox();
+        
+        $cpuPct = 0;
+        $connPct = 0;
+        $bandwidthPct = 0;
+        $bottleneck = 'None';
+        
+        if ($isSandbox) {
+            // Mock sandbox values (deterministically fluctuate around low percentages)
+            $cpuPct = 12 + (time() % 7);
+            $connPct = 5 + (time() % 4);
+            $bandwidthPct = 4 + (time() % 3);
+        } else {
+            // 1. CPU Capacity via load average
+            $cores = 1;
+            if (file_exists('/proc/cpuinfo')) {
+                $cpuinfo = @file_get_contents('/proc/cpuinfo');
+                if ($cpuinfo !== false) {
+                    $cores = substr_count($cpuinfo, 'processor');
+                }
+            }
+            if ($cores <= 0) $cores = 1;
+            
+            $load = sys_getloadavg();
+            if (is_array($load) && isset($load[0])) {
+                $cpuPct = round(($load[0] / $cores) * 100, 1);
+            }
+            if ($cpuPct > 100) $cpuPct = 100;
+            
+            // 2. Connection Capacity from HAProxy stats
+            $stats = self::getHaproxyStats();
+            if ($stats !== null) {
+                $maxConn = 0;
+                $curConn = 0;
+                foreach ($stats as $row) {
+                    if ($row['svname'] === 'FRONTEND') {
+                        $curConn += intval($row['scur']);
+                        $limit = intval($row['slim']);
+                        $maxConn += ($limit > 0) ? $limit : 2000;
+                    }
+                }
+                $connPct = ($maxConn > 0) ? round(($curConn / $maxConn) * 100, 1) : 0;
+            }
+            
+            // 3. Bandwidth Capacity (throughput vs 1 Gbps link)
+            $metrics = self::getLiveMetrics();
+            if ($metrics !== null && isset($metrics['throughput'])) {
+                $bandwidthPct = round(($metrics['throughput'] / 1000) * 100, 1);
+            }
+        }
+        
+        // Find highest utilization bottleneck
+        $utilization = max($cpuPct, $connPct, $bandwidthPct);
+        if ($utilization == $cpuPct) {
+            $bottleneck = 'CPU Core Utilization';
+        } elseif ($utilization == $connPct) {
+            $bottleneck = 'Concurrent Connection Limit';
+        } else {
+            $bottleneck = 'Network Interface Bandwidth';
+        }
+        
+        return [
+            'utilization' => $utilization,
+            'bottleneck' => $bottleneck,
+            'details' => [
+                'cpu' => $cpuPct,
+                'connections' => $connPct,
+                'bandwidth' => $bandwidthPct
+            ]
+        ];
+    }
 }
 ?>
