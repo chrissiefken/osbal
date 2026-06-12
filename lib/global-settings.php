@@ -1,6 +1,8 @@
 <?php
 // global server configuration settings are here
 class config {
+    const VERSION = '1.2.0';
+    
     // Determine the path to a writable settings directory
     public static function getConfigDir() {
         $path = '/usr/local/osbal/config/';

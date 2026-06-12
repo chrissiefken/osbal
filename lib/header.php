@@ -15,6 +15,15 @@ if (!$isPublicPage) {
     checkAuth();
 }
 
+require_once $_SERVER['DOCUMENT_ROOT'] . '/lib/system.php';
+$updateInfo = [
+    'update_available' => false,
+    'latest_version' => config::VERSION
+];
+if (isset($_SESSION['authenticated']) && $_SESSION['authenticated'] === true) {
+    $updateInfo = ApplianceSystem::checkForUpdates();
+}
+
 $publish_feedback = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'publish_changes') {
     $publish_result = publishConfigs();
@@ -57,13 +66,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                     <a href="/users/index.php">Users</a>
                 </li>
                 <li class="dropdown-custom">
-                    <a href="#">Advanced ▼</a>
+                    <a href="#" style="display:flex; align-items:center; gap:4px;">
+                        Advanced
+                        <?php if ($updateInfo['update_available']): ?>
+                            <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#f59e0b; box-shadow: 0 0 8px #f59e0b;"></span>
+                        <?php endif; ?>
+                        ▼
+                    </a>
                     <div class="dropdown-menu-custom">
                         <a href="/lb-settings/network.php">Management IP</a>
                         <a href="/lb-settings/ssl.php">SSL Certificates</a>
                         <a href="/lb-settings/ha.php">High Availability</a>
                         <a href="/docs/index.html#api" target="_blank">API Reference</a>
-                        <a href="/docs/index.html#about" target="_blank">About OSBal</a>
+                        <a href="/docs/index.html#about" target="_blank">About OSBal (v<?php echo config::VERSION; ?>)</a>
+                        <?php if ($updateInfo['update_available']): ?>
+                            <a href="https://github.com/siefkencp/osbal/releases" target="_blank" style="color:#f59e0b; font-weight:600; border-top: 1px solid var(--border-color); padding-top: 8px;">⚠ Update to v<?php echo htmlspecialchars($updateInfo['latest_version']); ?></a>
+                        <?php endif; ?>
                         <a href="/install.php">Install Wizard</a>
                         <a href="/logout.php">Sign Out</a>
                     </div>

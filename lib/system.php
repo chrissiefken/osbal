@@ -211,5 +211,51 @@ class ApplianceSystem {
             'blocked_requests' => $deniedReqs
         ];
     }
+
+    public static function checkForUpdates() {
+        $cacheFile = config::getConfigDir() . 'update_info.json';
+        $currentTime = time();
+        $cacheDuration = 86400; // 24 hours
+        
+        if (file_exists($cacheFile)) {
+            $data = json_decode(@file_get_contents($cacheFile), true);
+            if (is_array($data) && isset($data['last_checked']) && ($currentTime - $data['last_checked']) < $cacheDuration) {
+                return $data;
+            }
+        }
+        
+        $latestVersion = null;
+        $updateAvailable = false;
+        
+        $ctx = stream_context_create([
+            'http' => [
+                'timeout' => 2, // 2 seconds timeout to prevent blocking UI
+                'header' => "User-Agent: OSBal-Appliance-Updater\r\n"
+            ]
+        ]);
+        
+        $remoteUrl = 'https://raw.githubusercontent.com/siefkencp/osbal/main/VERSION';
+        $remoteVersion = @file_get_contents($remoteUrl, false, $ctx);
+        
+        if ($remoteVersion !== false) {
+            $latestVersion = trim($remoteVersion);
+            if (!empty($latestVersion) && version_compare($latestVersion, config::VERSION, '>')) {
+                $updateAvailable = true;
+            }
+        } else {
+            $latestVersion = isset($data['latest_version']) ? $data['latest_version'] : config::VERSION;
+            $updateAvailable = isset($data['update_available']) ? $data['update_available'] : false;
+        }
+        
+        $result = [
+            'last_checked' => $currentTime,
+            'latest_version' => $latestVersion,
+            'update_available' => $updateAvailable,
+            'current_version' => config::VERSION
+        ];
+        
+        @file_put_contents($cacheFile, json_encode($result), LOCK_EX);
+        return $result;
+    }
 }
 ?>

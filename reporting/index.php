@@ -120,6 +120,16 @@ $area_coords .= $chart_width . "," . $chart_height;
     </div>
 </div>
 
+<?php if ($updateInfo['update_available']): ?>
+    <div class="update-banner" style="background: linear-gradient(135deg, rgba(92, 98, 236, 0.15) 0%, rgba(0, 242, 254, 0.15) 100%); border: 1px solid rgba(92, 98, 236, 0.25); color: #fff; padding: 14px 24px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; box-shadow: 0 4px 15px rgba(92, 98, 236, 0.15);">
+        <div style="font-weight: 500; font-size: 0.95rem; display: flex; align-items: center; gap: 10px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--accent);"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="12" x2="12" y2="16"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+            A new appliance version (<strong>v<?php echo htmlspecialchars($updateInfo['latest_version']); ?></strong>) is available. (Current: v<?php echo config::VERSION; ?>)
+        </div>
+        <a href="https://github.com/siefkencp/osbal/releases" target="_blank" class="btn" style="background: var(--accent); color: #fff; padding: 6px 14px; font-size: 0.8rem; font-weight: 600; text-decoration: none; border-radius: 8px; box-shadow: 0 4px 10px rgba(92, 98, 236, 0.3); border:none; cursor:pointer;">Download Update &rarr;</a>
+    </div>
+<?php endif; ?>
+
 <!-- KPI Cards -->
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 30px;">
     <div class="card-glass" style="padding: 20px;">
