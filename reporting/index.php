@@ -126,7 +126,7 @@ $area_coords .= $chart_width . "," . $chart_height;
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--accent);"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="12" x2="12" y2="16"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
             A new appliance version (<strong>v<?php echo htmlspecialchars($updateInfo['latest_version']); ?></strong>) is available. (Current: v<?php echo config::VERSION; ?>)
         </div>
-        <a href="https://github.com/siefkencp/osbal/releases" target="_blank" class="btn" style="background: var(--accent); color: #fff; padding: 6px 14px; font-size: 0.8rem; font-weight: 600; text-decoration: none; border-radius: 8px; box-shadow: 0 4px 10px rgba(92, 98, 236, 0.3); border:none; cursor:pointer;">Download Update &rarr;</a>
+        <a href="https://github.com/chrissiefken/osbal/releases" target="_blank" class="btn" style="background: var(--accent); color: #fff; padding: 6px 14px; font-size: 0.8rem; font-weight: 600; text-decoration: none; border-radius: 8px; box-shadow: 0 4px 10px rgba(92, 98, 236, 0.3); border:none; cursor:pointer;">Download Update &rarr;</a>
     </div>
 <?php endif; ?>
 
@@ -178,7 +178,7 @@ $area_coords .= $chart_width . "," . $chart_height;
 
 <!-- KPI Cards -->
 <div class="kpi-grid">
-    <div class="card-glass" style="padding: 22px; display: flex; flex-direction: column; justify-content: space-between;">
+    <div class="card-glass cyan" style="padding: 22px; display: flex; flex-direction: column; justify-content: space-between;">
         <div>
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                 <div style="background: rgba(0, 242, 254, 0.08); border: 1px solid rgba(0, 242, 254, 0.18); width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; box-shadow: 0 0 15px rgba(0, 242, 254, 0.08);">
@@ -191,10 +191,24 @@ $area_coords .= $chart_width . "," . $chart_height;
             </div>
             <div style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.06em; margin-bottom: 4px;">Active Frontends</div>
         </div>
-        <div style="font-size: 2.4rem; font-weight: 800; color: var(--accent); line-height: 1.1; margin-top: 4px;"><?php echo $service_count; ?></div>
+        <div style="display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; margin-top: 4px;">
+            <div style="font-size: 2.4rem; font-weight: 800; color: var(--accent); line-height: 1.1;"><?php echo $service_count; ?></div>
+            <div style="font-size: 0.72rem; color: var(--success); font-weight: 600; margin-bottom: 6px;">100% Active</div>
+        </div>
+        <!-- Mini sparkline -->
+        <svg class="mini-sparkline" viewBox="0 0 120 30" preserveAspectRatio="none" style="width: 100%; height: 30px; margin-top: 12px; filter: drop-shadow(0 2px 6px rgba(0, 242, 254, 0.2)); opacity: 0.8;">
+            <defs>
+                <linearGradient id="glow-cyan" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.2"/>
+                    <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/>
+                </linearGradient>
+            </defs>
+            <path d="M0 30 L0 20 C15 15, 25 25, 40 16 C55 7, 65 22, 80 14 C95 6, 105 24, 120 10 L120 30 Z" fill="url(#glow-cyan)" />
+            <path d="M0 20 C15 15, 25 25, 40 16 C55 7, 65 22, 80 14 C95 6, 105 24, 120 10" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" />
+        </svg>
     </div>
     
-    <div class="card-glass" style="padding: 22px; display: flex; flex-direction: column; justify-content: space-between;">
+    <div class="card-glass emerald" style="padding: 22px; display: flex; flex-direction: column; justify-content: space-between;">
         <div>
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                 <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.18); width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; box-shadow: 0 0 15px rgba(16, 185, 129, 0.08);">
@@ -207,14 +221,28 @@ $area_coords .= $chart_width . "," . $chart_height;
             </div>
             <div style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.06em; margin-bottom: 4px;">Backend Nodes Pool</div>
         </div>
-        <div style="font-size: 2.4rem; font-weight: 800; color: var(--success); line-height: 1.1; margin-top: 4px;"><?php echo $total_servers; ?></div>
+        <div style="display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; margin-top: 4px;">
+            <div style="font-size: 2.4rem; font-weight: 800; color: var(--success); line-height: 1.1;"><?php echo $total_servers; ?></div>
+            <div style="font-size: 0.72rem; color: var(--success); font-weight: 600; margin-bottom: 6px;">100% Online</div>
+        </div>
+        <!-- Mini sparkline -->
+        <svg class="mini-sparkline" viewBox="0 0 120 30" preserveAspectRatio="none" style="width: 100%; height: 30px; margin-top: 12px; filter: drop-shadow(0 2px 6px rgba(16, 185, 129, 0.2)); opacity: 0.8;">
+            <defs>
+                <linearGradient id="glow-green" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="var(--success)" stop-opacity="0.2"/>
+                    <stop offset="100%" stop-color="var(--success)" stop-opacity="0"/>
+                </linearGradient>
+            </defs>
+            <path d="M0 30 L0 18 C15 22, 25 10, 40 14 C55 18, 65 7, 80 11 C95 15, 105 5, 120 8 L120 30 Z" fill="url(#glow-green)" />
+            <path d="M0 18 C15 22, 25 10, 40 14 C55 18, 65 7, 80 11 C95 15, 105 5, 120 8" fill="none" stroke="var(--success)" stroke-width="2" stroke-linecap="round" />
+        </svg>
     </div>
  
-    <div class="card-glass" style="padding: 22px; display: flex; flex-direction: column; justify-content: space-between;">
+    <div class="card-glass violet" style="padding: 22px; display: flex; flex-direction: column; justify-content: space-between;">
         <div>
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                <div style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center;">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f8fafc" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                <div style="background: rgba(168, 85, 247, 0.08); border: 1px solid rgba(168, 85, 247, 0.18); width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; box-shadow: 0 0 15px rgba(168, 85, 247, 0.08);">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#a855f7" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
                 </div>
                 <span class="help-tooltip" style="flex-shrink: 0;">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2.5" style="cursor:help;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
@@ -223,12 +251,38 @@ $area_coords .= $chart_width . "," . $chart_height;
             </div>
             <div style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.06em; margin-bottom: 4px;">Throughput</div>
         </div>
-        <div style="font-size: 2.4rem; font-weight: 800; color: #fff; line-height: 1.1; margin-top: 4px;">
-            <?php echo $throughputVal; ?> <span style="font-size: 1.1rem; font-weight: 500; color: var(--text-muted);">Mb/s</span>
+        <div style="display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; margin-top: 4px;">
+            <div style="font-size: 2.1rem; font-weight: 800; color: #fff; line-height: 1.1;">
+                <?php echo $throughputVal; ?> <span style="font-size: 0.95rem; font-weight: 500; color: var(--text-muted);">Mb/s</span>
+            </div>
+            <div style="font-size: 0.72rem; color: #a855f7; font-weight: 600; margin-bottom: 6px;">Live</div>
         </div>
+        <!-- Mini sparkline -->
+        <svg class="mini-sparkline" viewBox="0 0 120 30" preserveAspectRatio="none" style="width: 100%; height: 30px; margin-top: 12px; filter: drop-shadow(0 2px 6px rgba(168, 85, 247, 0.2)); opacity: 0.8;">
+            <defs>
+                <linearGradient id="glow-violet" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#a855f7" stop-opacity="0.2"/>
+                    <stop offset="100%" stop-color="#a855f7" stop-opacity="0"/>
+                </linearGradient>
+            </defs>
+            <path d="M0 30 L0 23 C15 25, 25 12, 40 18 C55 24, 65 10, 80 15 C95 20, 105 8, 120 11 L120 30 Z" fill="url(#glow-violet)" />
+            <path d="M0 23 C15 25, 25 12, 40 18 C55 24, 65 10, 80 15 C95 20, 105 8, 120 11" fill="none" stroke="#a855f7" stroke-width="2" stroke-linecap="round" />
+        </svg>
     </div>
  
-    <div class="card-glass" style="padding: 22px; display: flex; flex-direction: column; justify-content: space-between;">
+    <?php
+    $haCardClass = 'card-glass';
+    if ($ha['enabled']) {
+        if (strpos($haStatus, 'Active') !== false) {
+            $haCardClass = 'card-glass emerald';
+        } elseif (strpos($haStatus, 'Standby') !== false) {
+            $haCardClass = 'card-glass amber';
+        } elseif (strpos($haStatus, 'Inactive') !== false) {
+            $haCardClass = 'card-glass rose';
+        }
+    }
+    ?>
+    <div class="<?php echo $haCardClass; ?>" style="padding: 22px; display: flex; flex-direction: column; justify-content: space-between;">
         <div>
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                 <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color); width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center;">
@@ -241,8 +295,9 @@ $area_coords .= $chart_width . "," . $chart_height;
             </div>
             <div style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.06em; margin-bottom: 4px;">HA Host Status</div>
         </div>
-        <div style="font-weight: 700; color: <?php echo $haBadgeColor; ?>; display: flex; align-items: center; gap: 8px; margin-top: 4px; line-height: 1.1;">
-            <span style="width: 10px; height: 10px; border-radius: 50%; background: <?php echo $haDotColor; ?>; box-shadow: 0 0 10px <?php echo $haDotShadow; ?>; flex-shrink: 0;"></span>
+        <div style="font-weight: 700; color: <?php echo $haBadgeColor; ?>; display: flex; align-items: center; gap: 10px; margin-top: 4px; line-height: 1.1;">
+            <span style="width: 10px; height: 10px; border-radius: 50%; background: <?php echo $haDotColor; ?>; box-shadow: 0 0 10px <?php echo $haDotShadow; ?>; animation: ha-pulse 2s infinite; flex-shrink: 0;"></span>
+            <style>@keyframes ha-pulse { 0% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.15); opacity: 1; box-shadow: 0 0 14px <?php echo $haDotShadow; ?>; } 100% { transform: scale(1); opacity: 0.8; } }</style>
             <div style="display: flex; flex-direction: column; line-height: 1.1;">
                 <?php if (strpos($haStatus, 'Active') !== false): ?>
                     <span style="font-size: 1.3rem;">Active</span>
@@ -258,6 +313,10 @@ $area_coords .= $chart_width . "," . $chart_height;
                 <?php endif; ?>
             </div>
         </div>
+        <div style="margin-top: 15px; display: flex; align-items: center; justify-content: space-between; font-size: 0.7rem; color: var(--text-muted); border-top: 1px solid rgba(255, 255, 255, 0.05); padding-top: 8px;">
+            <span>VRRP Failover</span>
+            <span style="font-weight: 600; text-transform: uppercase; font-size: 0.65rem; color: <?php echo $haBadgeColor; ?>;"><?php echo $ha['enabled'] ? 'Enabled' : 'Disabled'; ?></span>
+        </div>
     </div>
  
     <?php
@@ -265,17 +324,21 @@ $area_coords .= $chart_width . "," . $chart_height;
     $gaugeColor = 'var(--success)';
     $capacityBg = 'rgba(16, 185, 129, 0.08)';
     $capacityBorder = 'rgba(16, 185, 129, 0.18)';
+    $capacityCardClass = 'card-glass emerald';
+    
     if ($capacity['utilization'] >= 90) {
         $gaugeColor = 'var(--danger)';
         $capacityBg = 'rgba(239, 68, 68, 0.08)';
         $capacityBorder = 'rgba(239, 68, 68, 0.18)';
+        $capacityCardClass = 'card-glass rose';
     } elseif ($capacity['utilization'] >= 70) {
         $gaugeColor = 'var(--warning)';
         $capacityBg = 'rgba(245, 158, 11, 0.08)';
         $capacityBorder = 'rgba(245, 158, 11, 0.18)';
+        $capacityCardClass = 'card-glass amber';
     }
     ?>
-    <div class="card-glass" style="padding: 22px; display: flex; flex-direction: column; justify-content: space-between;">
+    <div class="<?php echo $capacityCardClass; ?>" style="padding: 22px; display: flex; flex-direction: column; justify-content: space-between;">
         <div>
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                 <div style="background: <?php echo $capacityBg; ?>; border: 1px solid <?php echo $capacityBorder; ?>; width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; box-shadow: 0 0 15px rgba(0,0,0,0.1);">
@@ -305,28 +368,35 @@ $area_coords .= $chart_width . "," . $chart_height;
 <!-- Connections Chart -->
 <div class="card-glass">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
-        <h3 style="margin-bottom:0;">Network Traffic (Active Connections)</h3>
-        <span class="badge badge-success" style="animation: pulse 2s infinite;">Live</span>
+        <h3 style="margin-bottom:0; font-size: 1.15rem; font-weight: 600; background: linear-gradient(135deg, #fff 60%, var(--accent) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Network Traffic (Active Connections)</h3>
+        <span class="badge badge-success" style="animation: pulse 2s infinite; box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);">Live</span>
         <style>@keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }</style>
     </div>
     
-    <div style="background: rgba(0,0,0,0.15); border-radius:12px; padding:15px; border:1px solid var(--border-color);">
-        <svg class="chart-svg" viewBox="0 0 1000 180" preserveAspectRatio="none">
+    <div style="background: rgba(10,15,25,0.4); border-radius:12px; padding:15px; border:1px solid rgba(255,255,255,0.03); box-shadow: inset 0 2px 8px rgba(0,0,0,0.2);">
+        <svg class="chart-svg" viewBox="0 0 1000 180" preserveAspectRatio="none" style="height: 180px;">
             <defs>
                 <linearGradient id="chart-gradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.5"/>
-                    <stop offset="100%" stop-color="var(--primary)" stop-opacity="0"/>
+                    <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.3"/>
+                    <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/>
                 </linearGradient>
+                <filter id="neon-glow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur stdDeviation="3" result="blur" />
+                    <feMerge>
+                        <feMergeNode in="blur" />
+                        <feMergeNode in="SourceGraphic" />
+                    </feMerge>
+                </filter>
             </defs>
             <!-- Grid Lines -->
-            <line class="chart-grid" x1="0" y1="30" x2="1000" y2="30"/>
-            <line class="chart-grid" x1="0" y1="75" x2="1000" y2="75"/>
-            <line class="chart-grid" x1="0" y1="120" x2="1000" y2="120"/>
-            <line class="chart-grid" x1="0" y1="165" x2="1000" y2="165"/>
+            <line class="chart-grid" x1="0" y1="30" x2="1000" y2="30" stroke="rgba(255,255,255,0.03)" stroke-dasharray="4 6"/>
+            <line class="chart-grid" x1="0" y1="75" x2="1000" y2="75" stroke="rgba(255,255,255,0.03)" stroke-dasharray="4 6"/>
+            <line class="chart-grid" x1="0" y1="120" x2="1000" y2="120" stroke="rgba(255,255,255,0.03)" stroke-dasharray="4 6"/>
+            <line class="chart-grid" x1="0" y1="165" x2="1000" y2="165" stroke="rgba(255,255,255,0.03)" stroke-dasharray="4 6"/>
             
             <!-- Area & Line -->
             <polygon class="chart-area" points="<?php echo $area_coords; ?>"/>
-            <polyline class="chart-line" points="<?php echo $svg_coords; ?>"/>
+            <polyline class="chart-line" points="<?php echo $svg_coords; ?>" filter="url(#neon-glow)"/>
         </svg>
     </div>
 </div>
@@ -447,41 +517,41 @@ $area_coords .= $chart_width . "," . $chart_height;
             }
         ?>
         
-        <div style="background: rgba(255,255,255,0.01); border: 1px solid var(--border-color); border-radius:12px; padding: 15px; margin-bottom: 20px; display:flex; gap:12px; align-items:center;">
-            <div style="background: <?php echo $all_ok ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)'; ?>; width: 42px; height: 42px; border-radius:50%; display:grid; place-items:center; color: <?php echo $all_ok ? 'var(--success)' : 'var(--danger)'; ?>; font-size:1.2rem; font-weight:700;">
+        <div style="background: linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.01) 100%); border: 1px solid rgba(255, 255, 255, 0.04); border-radius:16px; padding: 16px 20px; margin-bottom: 20px; display:flex; gap:16px; align-items:center; box-shadow: 0 4px 15px rgba(0,0,0,0.15);">
+            <div style="background: <?php echo $all_ok ? 'rgba(16,185,129,0.08)' : 'rgba(239,68,68,0.08)'; ?>; border: 1px solid <?php echo $all_ok ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)'; ?>; width: 44px; height: 44px; border-radius:12px; display:grid; place-items:center; color: <?php echo $all_ok ? 'var(--success)' : 'var(--danger)'; ?>; font-size:1.3rem; font-weight:700; box-shadow: 0 0 15px <?php echo $all_ok ? 'rgba(16,185,129,0.05)' : 'rgba(239,68,68,0.05)'; ?>;">
                 <?php echo $all_ok ? '✓' : '⚠'; ?>
             </div>
             <div>
-                <div style="font-weight:600; color: #fff;"><?php echo $all_ok ? 'System Health Normal' : 'Diagnostics Warning'; ?></div>
-                <div style="font-size:0.8rem; color: var(--text-muted);">
+                <div style="font-weight:600; color: #fff; font-size: 0.95rem;"><?php echo $all_ok ? 'System Health Normal' : 'Diagnostics Warning'; ?></div>
+                <div style="font-size:0.8rem; color: var(--text-muted); margin-top: 2px;">
                     <?php echo $all_ok ? 'All configurations compile successfully and system binaries are active.' : 'Some software dependencies are missing or files are not configured.'; ?>
                 </div>
             </div>
         </div>
 
         <!-- Service Daemon States -->
-        <h4 style="margin-bottom: 10px; color: var(--accent);">OS Daemons Status</h4>
+        <h4 style="margin-bottom: 10px; color: var(--accent); font-size: 0.95rem; letter-spacing: 0.02em;">OS Daemons Status</h4>
         <div class="list-group" style="margin-bottom: 20px;">
-            <div class="list-item" style="display:flex; justify-content:space-between; align-items:center; padding: 8px 12px;">
-                <div style="font-weight:500; font-size:0.9rem;">HAProxy (Load Balancer)</div>
-                <span id="status-haproxy" class="badge badge-secondary">Checking...</span>
+            <div class="list-item" style="display:flex; justify-content:space-between; align-items:center; padding: 10px 14px; background: rgba(255,255,255,0.01);">
+                <div style="font-weight:500; font-size:0.85rem;">HAProxy (Load Balancer)</div>
+                <span id="status-haproxy" class="badge badge-secondary" style="border-radius: 6px;">Checking...</span>
             </div>
-            <div class="list-item" style="display:flex; justify-content:space-between; align-items:center; padding: 8px 12px;">
-                <div style="font-weight:500; font-size:0.9rem;">Keepalived (VRRP Failover)</div>
-                <span id="status-keepalived" class="badge badge-secondary">Checking...</span>
+            <div class="list-item" style="display:flex; justify-content:space-between; align-items:center; padding: 10px 14px; background: rgba(255,255,255,0.01);">
+                <div style="font-weight:500; font-size:0.85rem;">Keepalived (VRRP Failover)</div>
+                <span id="status-keepalived" class="badge badge-secondary" style="border-radius: 6px;">Checking...</span>
             </div>
-            <div class="list-item" style="display:flex; justify-content:space-between; align-items:center; padding: 8px 12px;">
-                <div style="font-weight:500; font-size:0.9rem;">Stunnel4 (SSL Proxy)</div>
-                <span id="status-stunnel4" class="badge badge-secondary">Checking...</span>
+            <div class="list-item" style="display:flex; justify-content:space-between; align-items:center; padding: 10px 14px; background: rgba(255,255,255,0.01);">
+                <div style="font-weight:500; font-size:0.85rem;">Stunnel4 (SSL Proxy)</div>
+                <span id="status-stunnel4" class="badge badge-secondary" style="border-radius: 6px;">Checking...</span>
             </div>
         </div>
 
         <div style="display:flex; gap:10px; justify-content:space-between; margin-bottom: 15px;">
-            <button id="btn-refresh-services" class="btn btn-secondary" style="padding: 8px 14px; font-size:0.85rem;">Refresh Services</button>
-            <button id="btn-validate-config" class="btn btn-primary" style="padding: 8px 14px; font-size:0.85rem;">Validate HAProxy Config</button>
+            <button id="btn-refresh-services" class="btn btn-secondary" style="padding: 8px 14px; font-size:0.8rem; border-radius: 8px;">Refresh Services</button>
+            <button id="btn-validate-config" class="btn btn-primary" style="padding: 8px 14px; font-size:0.8rem; border-radius: 8px;">Validate HAProxy Config</button>
         </div>
 
-        <div id="validation-result" style="display:none; background:rgba(0,0,0,0.25); border:1px solid var(--border-color); padding:12px; border-radius:10px; font-family:monospace; font-size:0.8rem; white-space:pre-wrap; max-height:120px; overflow-y:auto; margin-bottom: 20px;"></div>
+        <div id="validation-result" style="display:none; background: #070913; border: 1px solid rgba(255,255,255,0.06); padding:16px; border-radius:12px; font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; font-size:0.8rem; white-space:pre-wrap; max-height:160px; overflow-y:auto; margin-bottom: 20px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5), 0 4px 20px rgba(0,0,0,0.3);"></div>
         
         <div style="display:flex; justify-content:flex-end; border-top:1px solid var(--border-color); padding-top:15px;">
             <a href="/install.php" class="btn btn-secondary" style="padding: 6px 12px; font-size:0.8rem; color:var(--text-muted);">View Wizard Diagnostics &rarr;</a>

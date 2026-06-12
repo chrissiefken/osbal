@@ -65,7 +65,7 @@ fi
 # Clone repository to temp location and copy to document root
 TMP_DIR=$(mktemp -d)
 echo "Downloading latest codebase files..."
-git clone https://github.com/siefkencp/osbal.git "$TMP_DIR"
+git clone https://github.com/chrissiefken/osbal.git "$TMP_DIR"
 
 if [ "$IS_UPGRADE" -eq 1 ]; then
   echo "Removing old application files..."

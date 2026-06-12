@@ -80,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                         <a href="/docs/index.html#api" target="_blank">API Reference</a>
                         <a href="/docs/index.html#about" target="_blank">About OSBal (v<?php echo config::VERSION; ?>)</a>
                         <?php if ($updateInfo['update_available']): ?>
-                            <a href="https://github.com/siefkencp/osbal/releases" target="_blank" style="color:#f59e0b; font-weight:600; border-top: 1px solid var(--border-color); padding-top: 8px;">⚠ Update to v<?php echo htmlspecialchars($updateInfo['latest_version']); ?></a>
+                            <a href="https://github.com/chrissiefken/osbal/releases" target="_blank" style="color:#f59e0b; font-weight:600; border-top: 1px solid var(--border-color); padding-top: 8px;">⚠ Update to v<?php echo htmlspecialchars($updateInfo['latest_version']); ?></a>
                         <?php endif; ?>
                         <a href="/install.php">Install Wizard</a>
                         <a href="/logout.php">Sign Out</a>

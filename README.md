@@ -20,7 +20,7 @@ You can run and test the web interface locally on your development machine using
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/siefkencp/osbal.git
+   git clone https://github.com/chrissiefken/osbal.git
    cd osbal
    ```
 2. **Spin up the server**:
@@ -44,7 +44,7 @@ The deployment script automatically installs packages, clones the code, configur
 
 Run the following command in your terminal:
 ```bash
-curl -sSL https://raw.githubusercontent.com/siefkencp/osbal/main/scripts/deploy.sh | sudo bash
+curl -sSL https://raw.githubusercontent.com/chrissiefken/osbal/master/scripts/deploy.sh | sudo bash
 ```
 
 > [!TIP]
@@ -68,7 +68,7 @@ sudo apt-get install -y haproxy stunnel4 keepalived apache2 php php-cli php-json
 sudo rm -rf /var/www/html/*
 
 # Clone the code into place
-git clone https://github.com/siefkencp/osbal.git /tmp/osbal
+git clone https://github.com/chrissiefken/osbal.git /tmp/osbal
 sudo cp -r /tmp/osbal/* /var/www/html/
 
 # Set ownership to Apache's web user

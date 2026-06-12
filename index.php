@@ -120,7 +120,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
         
         <p style="text-align: center; font-size: 0.85rem;">
-            <a href="https://github.com/siefkencp/osbal" target="_blank" style="color: var(--text-muted); text-decoration: none;">Learn more on GitHub &rarr;</a>
+            <a href="https://github.com/chrissiefken/osbal" target="_blank" style="color: var(--text-muted); text-decoration: none;">Learn more on GitHub &rarr;</a>
         </p>
     </div>
 </body>

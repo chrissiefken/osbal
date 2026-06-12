@@ -219,23 +219,49 @@ class ApplianceSystem {
         
         if (file_exists($cacheFile)) {
             $data = json_decode(@file_get_contents($cacheFile), true);
-            if (is_array($data) && isset($data['last_checked']) && ($currentTime - $data['last_checked']) < $cacheDuration) {
+            if (is_array($data) 
+                && isset($data['last_checked']) 
+                && ($currentTime - $data['last_checked']) < $cacheDuration
+                && isset($data['current_version'])
+                && $data['current_version'] === config::VERSION
+            ) {
                 return $data;
             }
         }
         
         $latestVersion = null;
         $updateAvailable = false;
+        $remoteVersion = false;
         
-        $ctx = stream_context_create([
-            'http' => [
-                'timeout' => 2, // 2 seconds timeout to prevent blocking UI
-                'header' => "User-Agent: OSBal-Appliance-Updater\r\n"
-            ]
-        ]);
+        $remoteUrl = 'https://raw.githubusercontent.com/chrissiefken/osbal/master/VERSION';
         
-        $remoteUrl = 'https://raw.githubusercontent.com/siefkencp/osbal/master/VERSION';
-        $remoteVersion = @file_get_contents($remoteUrl, false, $ctx);
+        // Try cURL first, fall back to file_get_contents
+        if (function_exists('curl_init')) {
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $remoteUrl);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 2); // 2 seconds timeout
+            curl_setopt($ch, CURLOPT_USERAGENT, 'OSBal-Appliance-Updater');
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); 
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            if (is_resource($ch)) {
+                curl_close($ch);
+            }
+            if ($httpCode === 200 && $response !== false) {
+                $remoteVersion = $response;
+            }
+        }
+        
+        if ($remoteVersion === false) {
+            $ctx = stream_context_create([
+                'http' => [
+                    'timeout' => 2, // 2 seconds timeout
+                    'header' => "User-Agent: OSBal-Appliance-Updater\r\n"
+                ]
+            ]);
+            $remoteVersion = @file_get_contents($remoteUrl, false, $ctx);
+        }
         
         if ($remoteVersion !== false) {
             $latestVersion = trim($remoteVersion);
