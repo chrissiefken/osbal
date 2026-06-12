@@ -130,8 +130,54 @@ $area_coords .= $chart_width . "," . $chart_height;
     </div>
 <?php endif; ?>
 
+<style>
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 20px;
+    margin-bottom: 30px;
+}
+@media (max-width: 1200px) {
+    .kpi-grid {
+        gap: 12px;
+    }
+}
+@media (max-width: 992px) {
+    .kpi-grid {
+        gap: 8px;
+    }
+}
+@media (max-width: 768px) {
+    .kpi-grid {
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        gap: 12px;
+        padding-bottom: 12px;
+        margin-bottom: 24px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+    }
+    .kpi-grid::-webkit-scrollbar {
+        height: 6px;
+    }
+    .kpi-grid::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .kpi-grid::-webkit-scrollbar-thumb {
+        background-color: rgba(255, 255, 255, 0.15);
+        border-radius: 3px;
+    }
+    .kpi-grid > .card-glass {
+        flex: 0 0 260px;
+        margin-bottom: 0;
+    }
+}
+</style>
+
 <!-- KPI Cards -->
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 30px;">
+<div class="kpi-grid">
     <div class="card-glass" style="padding: 20px;">
         <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em; margin-bottom: 10px;">
             Active Frontends
@@ -173,11 +219,22 @@ $area_coords .= $chart_width . "," . $chart_height;
                 <span class="tooltip-text">Keepalived host failover state. MASTER indicates this host currently holds the VIP; STANDBY indicates it is waiting.</span>
             </span>
         </div>
-        <div style="font-size: 2.2rem; font-weight: 700; color: <?php echo $haBadgeColor; ?>;">
-            <span style="display:inline-flex; align-items:center; gap: 8px;">
-                <span style="width:14px; height:14px; border-radius:50%; background:<?php echo $haDotColor; ?>; box-shadow: 0 0 10px <?php echo $haDotShadow; ?>;"></span>
-                <?php echo $haStatus; ?>
-            </span>
+        <div style="font-weight: 700; color: <?php echo $haBadgeColor; ?>; min-height: 44px; display: flex; align-items: center; gap: 8px;">
+            <span style="width:12px; height:12px; border-radius:50%; background:<?php echo $haDotColor; ?>; box-shadow: 0 0 10px <?php echo $haDotShadow; ?>; flex-shrink: 0;"></span>
+            <div style="display: flex; flex-direction: column; line-height: 1.1;">
+                <?php if (strpos($haStatus, 'Active') !== false): ?>
+                    <span style="font-size: 1.6rem;">Active</span>
+                    <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 500;">MASTER</span>
+                <?php elseif (strpos($haStatus, 'Standby') !== false): ?>
+                    <span style="font-size: 1.6rem;">Standby</span>
+                    <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 500;">BACKUP</span>
+                <?php elseif (strpos($haStatus, 'Inactive') !== false): ?>
+                    <span style="font-size: 1.6rem;">Inactive</span>
+                    <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 500;">ERROR</span>
+                <?php else: ?>
+                    <span style="font-size: 1.6rem;"><?php echo $haStatus; ?></span>
+                <?php endif; ?>
+            </div>
         </div>
     </div>
 
