@@ -234,7 +234,7 @@ class ApplianceSystem {
             ]
         ]);
         
-        $remoteUrl = 'https://raw.githubusercontent.com/siefkencp/osbal/main/VERSION';
+        $remoteUrl = 'https://raw.githubusercontent.com/siefkencp/osbal/master/VERSION';
         $remoteVersion = @file_get_contents($remoteUrl, false, $ctx);
         
         if ($remoteVersion !== false) {
