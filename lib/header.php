@@ -77,6 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                         <a href="/lb-settings/network.php">Management IP</a>
                         <a href="/lb-settings/ssl.php">SSL Certificates</a>
                         <a href="/lb-settings/ha.php">High Availability</a>
+                        <a href="/lb-settings/osecure.php">OSecure Integration</a>
                         <a href="/docs/index.html#api" target="_blank">API Reference</a>
                         <a href="/docs/index.html#about" target="_blank">About OSBal (v<?php echo config::VERSION; ?>)</a>
                         <?php if ($updateInfo['update_available']): ?>

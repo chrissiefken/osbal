@@ -25,6 +25,26 @@ function saveBlacklist($ips) {
     compileHaproxyConfig();
 }
 
+function getThrottleListFile() {
+    $file = config::getConfigDir() . 'throttle.lst';
+    if (!file_exists($file)) {
+        @file_put_contents($file, "");
+    }
+    return $file;
+}
+
+function getThrottleList() {
+    $file = getThrottleListFile();
+    $content = file_get_contents($file);
+    return array_filter(array_map('trim', explode("\n", $content)));
+}
+
+function saveThrottleList($ips) {
+    $file = getThrottleListFile();
+    file_put_contents($file, implode("\n", array_filter(array_map('trim', $ips))) . "\n", LOCK_EX);
+    compileHaproxyConfig();
+}
+
 function getServices() {
     $file = getServicesFile();
     if (!file_exists($file)) {
@@ -203,9 +223,12 @@ function compileHaproxyConfig($services = null, $reload = false) {
         // Apply WAF rules if enabled and mode is HTTP
         if ($waf && $service['mode'] !== 'tcp') {
             $blacklistPath = getBlacklistFile();
+            $throttlePath = getThrottleListFile();
             $cfg .= "    # WAF Rules\n";
             $cfg .= "    acl is_blacklisted src -f " . $blacklistPath . "\n";
             $cfg .= "    http-request deny deny_status 403 if is_blacklisted\n";
+            $cfg .= "    acl is_throttled src -f " . $throttlePath . "\n";
+            $cfg .= "    http-request tarpit delay 5s if is_throttled\n";
             
             $waf_type = isset($service['rate_limit_type']) ? $service['rate_limit_type'] : 'deny';
             $waf_delay = isset($service['rate_limit_delay']) ? intval($service['rate_limit_delay']) : 5;
