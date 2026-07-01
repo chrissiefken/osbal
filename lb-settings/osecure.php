@@ -23,7 +23,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         saveOSecureSettings($settings);
         if ($enabled) {
-            $feedback = '<div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); color: var(--success); padding: 12px; border-radius: 10px; margin-bottom: 20px; font-size: 0.9rem;">OSecure settings updated successfully.</div>';
+            $installStatus = installOSecureDaemonIfNeeded();
+            $feedback = '<div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); color: var(--success); padding: 12px; border-radius: 10px; margin-bottom: 20px; font-size: 0.9rem;"><strong>OSecure enabled successfully!</strong><br>' . htmlspecialchars($installStatus) . '</div>';
         } else {
             $feedback = '<div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.2); color: var(--warning); padding: 12px; border-radius: 10px; margin-bottom: 20px; font-size: 0.9rem;">OSecure Integration disabled.</div>';
         }
