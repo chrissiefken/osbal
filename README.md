@@ -99,6 +99,12 @@ Allow the OSBal PHP backend (`www-data` user) to edit configuration files and re
 #### Step 4: Run the Setup Wizard
 Point your web browser to the server's IP address (e.g. `http://192.168.1.100/`) and complete the 3-step setup to create your credentials and network interfaces.
 
+#### Step 5: Production Cleanup & Hardening
+After completing the setup wizard, secure your host by running the production cleanup script. This deletes the setup wizard files and tightens directory permissions:
+```bash
+./scripts/cleanup.sh
+```
+
 ---
 
 ## WAF & Realtime Stats Guides
