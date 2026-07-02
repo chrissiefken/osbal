@@ -75,7 +75,7 @@ $osecure = getOSecureSettings();
                         <input type="hidden" name="share_metrics" value="1">
                         
                         <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:20px;">
-                            Don't have an appliance key? Register your load balancer at <a href="#" style="color:var(--primary); font-weight:600; text-decoration:none;">osecure.dev</a> to claim your free key.
+                            Don't have an appliance key? Register your load balancer at <a href="https://osecure.io/" target="_blank" style="color:var(--primary); font-weight:600; text-decoration:none;">osecure.io</a> to claim your free key.
                         </div>
 
                         <button class="btn btn-primary" type="submit" style="width:100%; background:var(--primary); border-color:var(--primary); box-shadow: 0 4px 15px rgba(155, 81, 224, 0.4); font-weight:600; padding:12px 20px;">
