@@ -4,10 +4,36 @@
 # Targets: Debian, Ubuntu, Raspberry Pi OS (Raspbian)
 set -e
 
+# Parse command line options
+FORCE_FRESH=0
+SKIP_CLEANUP=0
+
+while [[ "$#" -gt 0 ]]; do
+  case $1 in
+    -f|--fresh) FORCE_FRESH=1 ;;
+    --no-cleanup) SKIP_CLEANUP=1 ;;
+    -h|--help)
+      echo "Usage: $0 [options]"
+      echo "Options:"
+      echo "  -f, --fresh     Force a clean setup installation (ignores existing configurations)"
+      echo "  --no-cleanup    Skip running the automatic production hardening/cleanup script"
+      echo "  -h, --help      Display this help menu"
+      exit 0
+      ;;
+    *)
+      echo "Unknown parameter passed: $1"
+      exit 1
+      ;;
+  esac
+  shift
+done
+
 # Detect existing installation
 IS_UPGRADE=0
-if [ -d /usr/local/osbal/config ] || [ -f /var/www/html/lib/global-settings.php ]; then
-  IS_UPGRADE=1
+if [ "$FORCE_FRESH" -eq 0 ]; then
+  if [ -d /usr/local/osbal/config ] || [ -f /var/www/html/lib/global-settings.php ]; then
+    IS_UPGRADE=1
+  fi
 fi
 
 # Clear terminal screen and render banner
@@ -144,7 +170,7 @@ if [ "$IS_UPGRADE" -eq 1 ]; then
   systemctl reload keepalived || true
   systemctl restart stunnel4 || true
   
-  if [ -f /var/www/html/scripts/cleanup.sh ]; then
+  if [ "$SKIP_CLEANUP" -eq 0 ] && [ -f /var/www/html/scripts/cleanup.sh ]; then
     echo "Running production hardening cleanup..."
     bash /var/www/html/scripts/cleanup.sh
   fi
