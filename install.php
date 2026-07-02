@@ -87,6 +87,14 @@ if ($permissions_error) {
         <h2>Appliance Environment Check</h2>
         <p>OSBal requires several native utilities to be installed on your Ubuntu / Raspberry Pi host system to manage the load balancer.</p>
         
+        <!-- Welcome Instructions Placeholder -->
+        <div style="background: rgba(155, 81, 224, 0.08); border: 1px solid rgba(155, 81, 224, 0.2); padding: 18px; border-radius: 12px; margin-bottom: 24px; font-size: 0.9rem; line-height: 1.5; color: var(--text-muted);">
+            <strong style="color: #fff; display: block; margin-bottom: 6px; font-size: 0.95rem;">💡 OSbal Setup Instructions</strong>
+            If you are running this locally for development or evaluation, you can proceed in <strong>Sandbox Mode</strong> to configure simulated configuration folders.
+            For live production environments, deploy this stack onto a dedicated Linux VM or server by running the single-line automated command:
+            <code style="display: block; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); padding: 8px 12px; border-radius: 8px; margin-top: 8px; font-family: monospace; color: var(--accent); font-size: 0.8rem; overflow-x: auto; white-space: pre-wrap; word-break: break-all;">curl -sSL https://raw.githubusercontent.com/chrissiefken/osbal/master/scripts/deploy.sh | sudo bash</code>
+        </div>
+        
         <?php echo $list; ?>
         <?php echo $alert; ?>
         <?php echo $permissions_alert; ?>
