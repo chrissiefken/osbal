@@ -52,12 +52,11 @@ if [ -d "${PROJECT_ROOT}/docs" ]; then
 fi
 
 # 4. Remove Git history and metadata to prevent structural exposure
-echo " - Removing Git repository files (.git, .gitignore, README.md, LICENSE)..."
+echo " - Removing Git repository files (.git, .gitignore, README.md)..."
 rm -rf "${PROJECT_ROOT}/.git"
 rm -f "${PROJECT_ROOT}/.gitignore"
 rm -f "${PROJECT_ROOT}/.gitattributes"
 rm -f "${PROJECT_ROOT}/README.md"
-rm -f "${PROJECT_ROOT}/LICENSE"
 
 # 5. Remove backup files and local logs caches
 echo " - Cleaning temp/backup caches..."
@@ -100,7 +99,7 @@ fi
 
 echo "---------------------------------------------------------"
 echo "SUCCESS: Production environment hardened."
-echo "Wizard endpoints, Git files, and docs deleted."
+echo "Wizard endpoints, git metadata, and local docs deleted."
 echo "HTACCESS rules written. Directory permission locks set."
 echo "---------------------------------------------------------"
 echo "RECOMMENDED: Restrict access to this admin GUI (port 80/443) to secure"
