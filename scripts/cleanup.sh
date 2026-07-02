@@ -64,9 +64,13 @@ find "${PROJECT_ROOT}" -name "*.bak" -type f -delete
 find "${PROJECT_ROOT}" -name "*.log" -type f -delete
 
 # 6. Reset system log streams to fresh state
-if [ -f "${PROJECT_ROOT}/config/system_events.log" ]; then
-    echo " - Clearing configuration log cache..."
-    echo -n "" > "${PROJECT_ROOT}/config/system_events.log"
+if [ -f "/var/log/osbal/system_events.log" ]; then
+    echo " - Clearing production system events log..."
+    echo -n "" > "/var/log/osbal/system_events.log"
+fi
+if [ -d "${PROJECT_ROOT}/logs" ]; then
+    echo " - Deleting development logs/ folder..."
+    rm -rf "${PROJECT_ROOT}/logs"
 fi
 
 # 7. Generate Production Hardening .htaccess configuration

@@ -153,6 +153,16 @@ OSbal supports optional integration with **OSecure** for advanced AI security ca
 
 ---
 
+## System Logging & Auditing
+
+OSbal writes all system administration actions, service reloads (HAProxy, Keepalived, Stunnel4), command execution states, and diagnostic event logs to a dedicated system log file:
+* **Production Path:** `/var/log/osbal/system_events.log` (monitored and owned by `www-data`).
+* **Sandbox / Dev Path:** `logs/system_events.log` (local project directory).
+
+Check this log file to troubleshoot service restart failures, configuration parsing errors, or interface actions.
+
+---
+
 ## Verification & Optionality Tests
 
 To maintain transparency with the open-source community, OSbal includes automated verification tests. These verify that the load balancer compiles standard configurations without external dependencies and that the OSecure integration is 100% optional and decoupled.

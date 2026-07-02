@@ -16,6 +16,20 @@ class config {
         return $path;
     }
 
+    // Determine the path to the system log file
+    public static function getLogFile() {
+        $prodDir = '/var/log/osbal/';
+        if (is_dir($prodDir) && is_writable($prodDir)) {
+            return $prodDir . 'system_events.log';
+        }
+        // Fallback to project-local logs directory
+        $localDir = dirname(__DIR__) . '/logs/';
+        if (!file_exists($localDir)) {
+            @mkdir($localDir, 0755, true);
+        }
+        return $localDir . 'system_events.log';
+    }
+
     // Config files
     const userFile = 'users.json';
     const sslFile = 'ssl.json';

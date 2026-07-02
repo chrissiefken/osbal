@@ -116,10 +116,11 @@ if [ "$IS_UPGRADE" -eq 1 ] && [ -n "$BACKUP_DIR" ]; then
   rm -rf "$BACKUP_DIR"
 fi
 
-# 3. Create config paths and establish write permissions
+# 3. Create config paths, logs paths, and establish write permissions
 echo -e "\n\033[1;33m[3/6] Initializing configuration files & permissions...\033[0m"
 mkdir -p /usr/local/osbal/config
 mkdir -p /etc/stunnel/certs
+mkdir -p /var/log/osbal
 
 # Enable Stunnel daemon startup in Debian/Ubuntu config
 if [ -f /etc/default/stunnel4 ]; then
@@ -138,6 +139,8 @@ touch /etc/stunnel/stunnel.conf
 # Grant file write permissions to the web server user (www-data)
 chown -R www-data:www-data /usr/local/osbal/config
 chown -R www-data:www-data /etc/stunnel/certs
+chown -R www-data:www-data /var/log/osbal
+chmod 750 /var/log/osbal
 chown www-data:www-data /etc/haproxy/haproxy.cfg
 chown www-data:www-data /etc/keepalived/keepalived.conf
 chown www-data:www-data /etc/stunnel/stunnel.conf

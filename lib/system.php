@@ -15,7 +15,7 @@ class ApplianceSystem {
     private static function execute($command) {
         if (self::isSandbox()) {
             // Log locally to terminal logs or config log folder
-            $logFile = config::getConfigDir() . 'system_events.log';
+            $logFile = config::getLogFile();
             $logMessage = "[" . date('Y-m-d H:i:s') . "] [SANDBOX BYPASS] Executed: " . $command . "\n";
             @file_put_contents($logFile, $logMessage, FILE_APPEND);
             return array('success' => true, 'output' => 'Sandbox bypass success.');
@@ -26,7 +26,7 @@ class ApplianceSystem {
         $code = 0;
         exec($command . ' 2>&1', $output, $code);
         
-        $logFile = config::getConfigDir() . 'system_events.log';
+        $logFile = config::getLogFile();
         $logMessage = "[" . date('Y-m-d H:i:s') . "] Executed: " . $command . " | Code: " . $code . " | Output: " . implode(" ", $output) . "\n";
         @file_put_contents($logFile, $logMessage, FILE_APPEND);
 
