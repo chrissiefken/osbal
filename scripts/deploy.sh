@@ -143,6 +143,11 @@ if [ "$IS_UPGRADE" -eq 1 ]; then
   systemctl reload haproxy || true
   systemctl reload keepalived || true
   systemctl restart stunnel4 || true
+  
+  if [ -f /var/www/html/scripts/cleanup.sh ]; then
+    echo "Running production hardening cleanup..."
+    bash /var/www/html/scripts/cleanup.sh
+  fi
 else
   # On first-time install, start them up to initialize active states
   systemctl restart haproxy || true
