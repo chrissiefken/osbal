@@ -117,3 +117,16 @@ Go to the **Realtime Stats** page to inspect network operations:
 * **Load Simulator**: Press **Low**, **Medium**, or **High** to mock traffic levels and watch connections, latency, and request rates react.
 * **Access Log Terminal**: Displays standard log entries mapping incoming IPs to destination backend nodes.
 * **DDoS Attack Test**: Press the **DDoS** button to simulate a high-volume request flood. You will see WAF rate-limiting rules engage in real time, appending red blocking alerts to the log terminal and counting up WAF-blocked request metrics.
+
+---
+
+## Verification & Optionality Tests
+
+To maintain transparency with the open-source community, OSbal includes automated verification tests. These verify that the load balancer compiles standard configurations without external dependencies and that the OSecure integration is 100% optional and decoupled.
+
+Run the test suite locally using our shell test runner:
+```bash
+./scripts/run-tests.sh
+```
+
+This script executes the assertions in `tests/verify-optionality.php`, validating default configs, failsafe operations, and HAProxy syntax integrity checks.

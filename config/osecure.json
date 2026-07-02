@@ -1,6 +1,6 @@
 {
-    "enabled": true,
-    "license_key": "OSecure-487C2A20-A7353B8B-34BB6D2F",
+    "enabled": false,
+    "license_key": "",
     "server_url": "http:\/\/localhost:8000",
     "sync_interval": 60,
     "last_sync": "Never",
