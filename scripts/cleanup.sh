@@ -41,6 +41,11 @@ if [ -d "${PROJECT_ROOT}/tests" ]; then
     rm -rf "${PROJECT_ROOT}/tests"
 fi
 
+if [ -d "${PROJECT_ROOT}/docs" ]; then
+    echo " - Deleting docs/ folder (removing local marketing site)..."
+    rm -rf "${PROJECT_ROOT}/docs"
+fi
+
 # 4. Remove backup files and local logs caches
 echo " - Cleaning temp/backup caches..."
 find "${PROJECT_ROOT}" -name "*.bak" -type f -delete
@@ -59,6 +64,9 @@ fi
 
 echo "---------------------------------------------------------"
 echo "SUCCESS: Production environment hardened."
-echo "Removed install wizard files, test suites, and secured file permissions."
+echo "Removed install wizard files, docs, test suites, and secured permissions."
+echo "---------------------------------------------------------"
+echo "RECOMMENDED: Restrict access to this admin GUI (port 80/443) to secure"
+echo "private networks (VPN/VPC) only. Do not expose this panel to the public WAN."
 echo "========================================================="
 exit 0

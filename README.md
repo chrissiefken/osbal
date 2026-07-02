@@ -100,10 +100,14 @@ Allow the OSBal PHP backend (`www-data` user) to edit configuration files and re
 Point your web browser to the server's IP address (e.g. `http://192.168.1.100/`) and complete the 3-step setup to create your credentials and network interfaces.
 
 #### Step 5: Production Cleanup & Hardening
-After completing the setup wizard, secure your host by running the production cleanup script. This deletes the setup wizard files and tightens directory permissions:
+After completing the setup wizard, secure your host by running the production cleanup script. This deletes the setup wizard files, clears the docs/ directory, and tightens directory permissions:
 ```bash
 ./scripts/cleanup.sh
 ```
+
+> [!WARNING]
+> **Administrative Panel Private Isolation**
+> OSbal's web administration panel grants full control over network services and configs. **Never expose the admin panel (port 80/443 of this host) to the public WAN.** Always restrict management traffic to a trusted private network (VPC, local subnet) or a secure management VPN (e.g. WireGuard, Tailscale).
 
 ---
 
