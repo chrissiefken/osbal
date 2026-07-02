@@ -1,7 +1,7 @@
 <?php
 // global server configuration settings are here
 class config {
-    const VERSION = '1.4.0';
+    const VERSION = '1.4.1';
     
     // Determine the path to a writable settings directory
     public static function getConfigDir() {

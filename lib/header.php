@@ -79,8 +79,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                         <a href="/lb-settings/ssl.php">SSL Certificates</a>
                         <a href="/lb-settings/ha.php">High Availability</a>
                         <a href="/lb-settings/osecure.php">OSecure Integration</a>
-                        <a href="/docs/index.html#api" target="_blank">API Reference</a>
-                        <a href="/docs/index.html#about" target="_blank">About OSBal (v<?php echo config::VERSION; ?>)</a>
+                        <a href="https://chrissiefken.github.io/osbal/#api" target="_blank">API Reference</a>
+                        <a href="https://chrissiefken.github.io/osbal/#about" target="_blank">About OSBal (v<?php echo config::VERSION; ?>)</a>
                         <?php if ($updateInfo['update_available']): ?>
                             <a href="https://github.com/chrissiefken/osbal/releases" target="_blank" style="color:#f59e0b; font-weight:600; border-top: 1px solid var(--border-color); padding-top: 8px;">⚠ Update to v<?php echo htmlspecialchars($updateInfo['latest_version']); ?></a>
                         <?php endif; ?>
