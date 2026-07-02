@@ -11,6 +11,7 @@ OSBal is a modernized, open-source load balancer stack and configuration manager
 * **Low Footprint**: Runs comfortably on minimal hardware (e.g. Raspberry Pi with 1GB to 2GB RAM).
 * **Native Web Application Firewall (WAF)**: Block SQL injections, Cross-Site Scripting (XSS), and rate-limit abusers natively in HAProxy.
 * **Real-time Traffic Stats**: Dynamic charting, access log terminals, and simulated stress testing built right into the interface.
+* **Optional OSecure AI Sidecar**: Deep API analysis, Gemini-driven request triage, and cloud WAF sync (AWS WAF/GCP Armor) using a non-blocking asynchronous daemon sidecar.
 
 ---
 
@@ -47,8 +48,18 @@ Run the following command in your terminal:
 curl -sSL https://raw.githubusercontent.com/chrissiefken/osbal/master/scripts/deploy.sh | sudo bash
 ```
 
+#### Installer Script Options
+You can customize the installer/upgrader behavior by passing flags directly to the script:
+* **`-f`, `--fresh`**: Forces a clean installation. It ignores any pre-existing configurations (skips backup restoration) and leaves setup wizard endpoints intact so you can reconfigure the server from scratch.
+* **`--no-cleanup`**: Upgrades the codebase but bypasses the automatic running of the production hardening script. This preserves setup wizard files, git metadata, and testing suites (recommended for development environments).
+
+```bash
+# Example: Running a forced clean setup
+sudo ./scripts/deploy.sh --fresh
+```
+
 > [!TIP]
-> **Seamless Upgrades**: Running this command on an existing OSBal appliance automatically detects the current installation, backups your configurations, cleans code directories, deploys the latest version, and restores your database without downtime.
+> **Seamless Upgrades**: Running this command without flags on an existing OSBal appliance automatically detects the current installation, backups your configurations, cleans code directories, deploys the latest version, restores your settings without downtime, and automatically runs the production cleanup script to keep your server hardened.
 
 ---
 
@@ -100,7 +111,7 @@ Allow the OSBal PHP backend (`www-data` user) to edit configuration files and re
 Point your web browser to the server's IP address (e.g. `http://192.168.1.100/`) and complete the 3-step setup to create your credentials and network interfaces.
 
 #### Step 5: Production Cleanup & Hardening
-After completing the setup wizard, secure your host by running the production cleanup script. This deletes the setup wizard files, clears the docs/ directory, and tightens directory permissions:
+After completing the setup wizard, secure your host by running the production cleanup script. This deletes the setup wizard files, deletes the credentials creation endpoint (`api/createUser.php`), clears the local `docs/` directory, strips Git history, writes a secure `.htaccess` file, and tightens configuration database permissions:
 ```bash
 ./scripts/cleanup.sh
 ```
@@ -127,6 +138,18 @@ Go to the **Realtime Stats** page to inspect network operations:
 * **Load Simulator**: Press **Low**, **Medium**, or **High** to mock traffic levels and watch connections, latency, and request rates react.
 * **Access Log Terminal**: Displays standard log entries mapping incoming IPs to destination backend nodes.
 * **DDoS Attack Test**: Press the **DDoS** button to simulate a high-volume request flood. You will see WAF rate-limiting rules engage in real time, appending red blocking alerts to the log terminal and counting up WAF-blocked request metrics.
+
+---
+
+## Optional Security Integration: OSecure AI
+
+OSbal supports optional integration with **OSecure** for advanced AI security capabilities. The integration is **100% decoupled and optional**:
+* **Zero Latency Impact**: OSecure runs as a separate background sidecar daemon (`osecure-agentd`) on the load balancer host. It analyzes request events asynchronously (via log tailing), preventing any inline blocking overhead or request routing latency.
+* **Key Features**:
+  * Statistical Z-score calculations to identify volumetric egress exfiltration leaks.
+  * Request payload triage using Google Gemini to identify complex, zero-day threat patterns.
+  * Cloud WAF Synchronization: Automatically compiles and pushes dynamically triaged IP bans and rate-limits to your edge WAFs (AWS WAF and GCP Cloud Armor).
+* **Enablement**: Toggle the integration under **Settings > OSecure**, enter your license key, and the OSbal setup script will automatically handle downloading, verifying, and launching the background agent daemon.
 
 ---
 
