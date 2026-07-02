@@ -35,6 +35,11 @@ if [ -f "${PROJECT_ROOT}/install.php" ]; then
     rm -f "${PROJECT_ROOT}/install.php"
 fi
 
+if [ -f "${PROJECT_ROOT}/api/createUser.php" ]; then
+    echo " - Deleting api/createUser.php (prevent unauthorized account overwrites)..."
+    rm -f "${PROJECT_ROOT}/api/createUser.php"
+fi
+
 # 3. Remove developer testing directories and local verification scripts
 if [ -d "${PROJECT_ROOT}/tests" ]; then
     echo " - Deleting tests/ folder..."
@@ -46,12 +51,43 @@ if [ -d "${PROJECT_ROOT}/docs" ]; then
     rm -rf "${PROJECT_ROOT}/docs"
 fi
 
-# 4. Remove backup files and local logs caches
+# 4. Remove Git history and metadata to prevent structural exposure
+echo " - Removing Git repository files (.git, .gitignore, README.md, LICENSE)..."
+rm -rf "${PROJECT_ROOT}/.git"
+rm -f "${PROJECT_ROOT}/.gitignore"
+rm -f "${PROJECT_ROOT}/.gitattributes"
+rm -f "${PROJECT_ROOT}/README.md"
+rm -f "${PROJECT_ROOT}/LICENSE"
+
+# 5. Remove backup files and local logs caches
 echo " - Cleaning temp/backup caches..."
 find "${PROJECT_ROOT}" -name "*.bak" -type f -delete
 find "${PROJECT_ROOT}" -name "*.log" -type f -delete
 
-# 5. Set secure file permissions on production settings folders
+# 6. Reset system log streams to fresh state
+if [ -f "${PROJECT_ROOT}/config/system_events.log" ]; then
+    echo " - Clearing configuration log cache..."
+    echo -n "" > "${PROJECT_ROOT}/config/system_events.log"
+fi
+
+# 7. Generate Production Hardening .htaccess configuration
+echo " - Generating production-hardening .htaccess file..."
+cat << 'EOF' > "${PROJECT_ROOT}/.htaccess"
+# Disable directory indexes
+Options -Indexes
+
+# Deny direct HTTP access to sensitive config files, databases, and scripts
+<FilesMatch "\.(json|lst|log|sh|bak)$">
+    Require all denied
+</FilesMatch>
+
+# Block PHP error output displaying on screen
+php_flag display_errors off
+php_value error_reporting 2147483647
+EOF
+chmod 644 "${PROJECT_ROOT}/.htaccess"
+
+# 8. Set secure file permissions on production settings folders
 echo "Applying secure permission lock..."
 if [ -d "/usr/local/osbal/config" ]; then
     # Production directory permissions
@@ -64,7 +100,8 @@ fi
 
 echo "---------------------------------------------------------"
 echo "SUCCESS: Production environment hardened."
-echo "Removed install wizard files, docs, test suites, and secured permissions."
+echo "Wizard endpoints, Git files, and docs deleted."
+echo "HTACCESS rules written. Directory permission locks set."
 echo "---------------------------------------------------------"
 echo "RECOMMENDED: Restrict access to this admin GUI (port 80/443) to secure"
 echo "private networks (VPN/VPC) only. Do not expose this panel to the public WAN."
